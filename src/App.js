@@ -567,16 +567,17 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen transition-colors duration-500" style={{ backgroundColor: settings.bgColor, fontFamily: 'sans-serif' }}>
+    <div className="min-h-screen barber-bg" style={{ fontFamily: 'sans-serif' }}>
 
       {/* ── NAVIGATION ── */}
-      <div className="flex justify-center p-4">
-        <div className="flex bg-black/90 backdrop-blur-md p-1 rounded-full border border-white/10 shadow-2xl">
+      <div className="flex justify-center p-4 pt-6">
+        <div className="flex barber-nav p-1 rounded-full">
           <button onClick={() => navigateTo("customer")}
-            className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view==='customer'?'text-white shadow-lg':'text-slate-500'}`}
-            style={view==='customer'?{backgroundColor:settings.primaryColor}:{}}>حجز موعد</button>
+            className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view==='customer'?'barber-nav-active':'text-gold/50 hover:text-gold'}`}>
+            حجز موعد
+          </button>
           <button onClick={() => navigateTo("owner")}
-            className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view==='owner'?'bg-white text-black shadow-lg':'text-slate-500'}`}>
+            className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view==='owner'?'bg-white/10 text-gold shadow-lg':'text-gold/40 hover:text-gold/70'}`}>
             الإدارة
           </button>
         </div>
@@ -1045,86 +1046,116 @@ export default function App() {
       ) : (
 
       /* ══════════════════════════════════════════════════════════════
-          CUSTOMER BOOKING PAGE
+          CUSTOMER BOOKING PAGE — LUXURY MIDNIGHT GOLD
       ══════════════════════════════════════════════════════════════ */
-        <div className="pb-20">
+        <div className="pb-20 min-h-screen">
 
-          {/* HEADER */}
-          <header className={`pt-10 pb-8 px-6 text-center transition-opacity duration-300 ${settingsLoaded?'opacity-100':'opacity-0'}`}>
-            {settings.logoUrl && (
-              <img src={settings.logoUrl} alt="logo" className="w-20 h-20 rounded-full mx-auto mb-4 object-cover shadow-xl border-4" style={{borderColor:settings.primaryColor}} />
-            )}
-            <h1 className="text-5xl font-black italic uppercase tracking-tighter leading-tight text-slate-950">{settings.shopName}</h1>
-            <h2 className="text-3xl font-black text-slate-800/40 mt-1">{settings.shopNameAr}</h2>
-            <div className="mt-6 flex flex-col items-center gap-2">
-              <div className="flex items-center gap-3 bg-black text-white px-6 py-2.5 rounded-full shadow-xl">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                <span className="text-[11px] font-black uppercase tracking-widest">{settings.workingHoursStr}</span>
+          {/* HERO HEADER */}
+          <header className={`relative pt-16 pb-12 px-6 text-center overflow-hidden transition-opacity duration-500 ${settingsLoaded?'opacity-100':'opacity-0'}`}>
+            {/* Decorative gold orbs */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full pointer-events-none" style={{background:'radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)', transform:'translate(-50%, -40%)'}} />
+            <div className="absolute top-8 left-8 w-32 h-px barber-divider-h opacity-30" />
+            <div className="absolute top-8 right-8 w-32 h-px barber-divider-h opacity-30" />
+
+            {/* Logo */}
+            {settings.logoUrl ? (
+              <div className="flex justify-center mb-6">
+                <div className="relative">
+                  <div className="w-24 h-24 rounded-full overflow-hidden barber-logo-ring">
+                    <img src={settings.logoUrl} alt={settings.shopName} className="w-full h-full object-contain" onError={e=>e.target.style.display='none'} />
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center barber-badge">
+                    <span className="text-black text-[10px] font-black">✓</span>
+                  </div>
+                </div>
               </div>
-              <div className="text-[12px] font-black text-slate-900/40 uppercase tracking-tighter" dir="rtl">📍 {settings.locationDesc}</div>
-              {/* Social + phone pills */}
-              <div className="mt-2 flex flex-wrap items-center justify-center gap-2 max-w-sm mx-auto px-2">
+            ) : (
+              <div className="flex justify-center mb-6">
+                <div className="w-24 h-24 rounded-full flex items-center justify-center text-4xl barber-logo-ring barber-logo-fallback">
+                  💈
+                </div>
+              </div>
+            )}
+
+            <h1 className="barber-title text-5xl font-black uppercase tracking-widest leading-tight mb-1">{settings.shopName}</h1>
+            <h2 className="text-xl font-black text-gold/50 mb-6 tracking-wider">{settings.shopNameAr}</h2>
+
+            <div className="flex flex-col items-center gap-3">
+              <div className="flex items-center gap-3 barber-pill px-6 py-2.5 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
+                <span className="text-[11px] font-black uppercase tracking-widest text-gold/80">{settings.workingHoursStr}</span>
+              </div>
+              <p className="text-[11px] font-bold text-gold/40 uppercase tracking-wider">📍 {settings.locationDesc}</p>
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-1">
                 {settings.facebookUrl && (
-                  <a href={settings.facebookUrl} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white border border-black/10 text-slate-700 hover:text-[#1877F2] hover:border-[#1877F2]/30 hover:shadow-md transition-all flex items-center justify-center shrink-0">
+                  <a href={settings.facebookUrl} target="_blank" rel="noreferrer" className="barber-social-btn w-10 h-10 rounded-full flex items-center justify-center shrink-0">
                     <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M13.5 8.5V6.8c0-.8.5-1.1 1.2-1.1H16V3h-2.1C11.6 3 10.5 4.4 10.5 6.2v2.3H9v2.8h1.5V21h3V11.3h2.1l.3-2.8h-2.4z"/></svg>
                   </a>
                 )}
                 {settings.instagramUrl && (
-                  <a href={settings.instagramUrl} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white border border-black/10 text-slate-700 hover:text-[#E1306C] hover:border-[#E1306C]/30 hover:shadow-md transition-all flex items-center justify-center shrink-0">
+                  <a href={settings.instagramUrl} target="_blank" rel="noreferrer" className="barber-social-btn w-10 h-10 rounded-full flex items-center justify-center shrink-0">
                     <svg viewBox="0 0 24 24" className="w-4 h-4 stroke-current fill-none" strokeWidth="2"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
                   </a>
                 )}
                 {[settings.contactPhone1,settings.contactPhone2].filter(p=>digitsOnly(p).length>=5).map((num,i)=>(
-                  <a key={i} href={`tel:+${digitsOnly(num)}`} dir="ltr" className="inline-flex items-center gap-1.5 h-10 px-3 rounded-full bg-white border border-black/10 text-slate-700 hover:border-slate-300 hover:shadow-md transition-all shrink-0">
-                    <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0 opacity-60" fill="none" stroke="currentColor" strokeWidth="2.2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                  <a key={i} href={`tel:+${digitsOnly(num)}`} dir="ltr" className="barber-social-btn inline-flex items-center gap-1.5 h-10 px-3 rounded-full shrink-0">
+                    <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                     <span className="text-[11px] font-black tabular-nums">{digitsOnly(num)}</span>
                   </a>
                 ))}
               </div>
             </div>
+
+            {/* Bottom decorative line */}
+            <div className="mt-10 flex items-center gap-4 px-8">
+              <div className="flex-1 h-px barber-divider-h" />
+              <span className="text-gold/30 text-lg">✦</span>
+              <div className="flex-1 h-px barber-divider-h" />
+            </div>
           </header>
 
           {/* BOOKING WIZARD */}
-          <div className="max-w-lg mx-auto px-4 space-y-4" dir="rtl">
+          <div className="max-w-lg mx-auto px-4 space-y-5" dir="rtl">
 
-            {/* Step indicator */}
-            <div className="flex items-center justify-center gap-2 mb-6">
+            {/* Step indicator — luxury version */}
+            <div className="flex items-center justify-center gap-2 mb-2 px-4">
               {[{n:1,label:'الخدمة'},{n:2,label:'الموعد'},{n:3,label:'بياناتك'}].map(({n,label})=>(
                 <React.Fragment key={n}>
-                  <div className={`flex flex-col items-center gap-1`}>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm transition-all ${bookingStep>=n?'text-white shadow-lg':'bg-slate-100 text-slate-400'}`}
-                      style={bookingStep>=n?{backgroundColor:settings.primaryColor}:{}}>
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-sm transition-all ${bookingStep>=n?'barber-step-active':'barber-step-inactive'}`}>
                       {bookingStep>n?'✓':n}
                     </div>
-                    <span className={`text-[9px] font-black ${bookingStep>=n?'text-slate-700':'text-slate-300'}`}>{label}</span>
+                    <span className={`text-[9px] font-black uppercase tracking-widest ${bookingStep>=n?'text-gold':'text-gold/20'}`}>{label}</span>
                   </div>
-                  {n<3 && <div className={`flex-1 h-0.5 mb-5 rounded-full transition-all ${bookingStep>n?'':'bg-slate-200'}`} style={bookingStep>n?{backgroundColor:settings.primaryColor}:{}} />}
+                  {n<3 && <div className={`flex-1 h-px mb-5 transition-all ${bookingStep>n?'barber-divider-h':'barber-divider-inactive'}`} />}
                 </React.Fragment>
               ))}
             </div>
 
             {/* STEP 1 — Pick service */}
             {bookingStep === 1 && (
-              <div className="space-y-3">
-                <h2 className="text-xl font-black text-slate-900 mb-4">اختر الخدمة ✂️</h2>
+              <div className="space-y-3 animate-fade-in">
+                <h2 className="barber-section-title text-xl font-black mb-5 flex items-center gap-3">
+                  <span className="barber-icon-badge">✂️</span>
+                  اختر الخدمة
+                </h2>
                 {services.length === 0 && (
-                  <div className="text-center py-12 text-slate-400 font-bold">لا توجد خدمات بعد</div>
+                  <div className="barber-card text-center py-12 text-gold/40 font-bold rounded-[2rem]">لا توجد خدمات بعد</div>
                 )}
                 {services.map(svc=>(
                   <button key={svc.id} type="button" onClick={()=>{setSelectedService(svc);setBookingStep(2);}}
-                    className={`w-full rounded-[2rem] p-5 border-2 transition-all text-right flex items-center gap-4 hover:shadow-lg active:scale-[0.98] ${selectedService?.id===svc.id?'border-transparent shadow-lg':'bg-white border-slate-100 hover:border-slate-200'}`}
-                    style={selectedService?.id===svc.id?{backgroundColor:settings.primaryColor,borderColor:settings.primaryColor}:{}}>
-                    {svc.image && <img src={svc.image} alt={svc.name} className="w-16 h-16 rounded-2xl object-cover shrink-0" onError={e=>e.target.style.display='none'} />}
-                    {!svc.image && (
-                      <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shrink-0 bg-slate-100">✂️</div>
-                    )}
+                    className={`w-full rounded-[2rem] p-5 border-2 transition-all text-right flex items-center gap-4 active:scale-[0.98] ${selectedService?.id===svc.id?'barber-card-selected':'barber-card'}`}>
+                    {svc.image
+                      ? <img src={svc.image} alt={svc.name} className="w-16 h-16 rounded-2xl object-cover shrink-0 barber-img-ring" onError={e=>e.target.style.display='none'} />
+                      : <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shrink-0 barber-icon-box">✂️</div>
+                    }
                     <div className="flex-1 min-w-0">
-                      <p className={`font-black text-lg leading-tight ${selectedService?.id===svc.id?'text-white':'text-slate-900'}`}>{svc.name}</p>
-                      {svc.desc && <p className={`text-[11px] font-bold mt-0.5 ${selectedService?.id===svc.id?'text-white/70':'text-slate-400'}`}>{svc.desc}</p>}
+                      <p className={`font-black text-lg leading-tight ${selectedService?.id===svc.id?'text-black':'text-gold'}`}>{svc.name}</p>
+                      {svc.desc && <p className={`text-[11px] font-bold mt-0.5 ${selectedService?.id===svc.id?'text-black/60':'text-gold/40'}`}>{svc.desc}</p>}
                     </div>
                     <div className="text-right shrink-0">
-                      <p className={`font-black text-xl ${selectedService?.id===svc.id?'text-white':'text-slate-900'}`} style={selectedService?.id!==svc.id?{color:settings.primaryColor}:{}}>{(svc.price||0).toLocaleString()}</p>
-                      <p className={`text-[10px] font-bold ${selectedService?.id===svc.id?'text-white/70':'text-slate-400'}`}>د.ع · {svc.duration} د</p>
+                      <p className={`font-black text-xl ${selectedService?.id===svc.id?'text-black':'text-gold'}`}>{(svc.price||0).toLocaleString()}</p>
+                      <p className={`text-[10px] font-bold ${selectedService?.id===svc.id?'text-black/60':'text-gold/40'}`}>د.ع · {svc.duration} د</p>
                     </div>
                   </button>
                 ))}
@@ -1133,29 +1164,31 @@ export default function App() {
 
             {/* STEP 2 — Pick date & slot */}
             {bookingStep === 2 && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <button onClick={()=>setBookingStep(1)} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition-all">←</button>
-                  <h2 className="text-xl font-black text-slate-900">اختر الموعد 📅</h2>
+              <div className="space-y-4 animate-fade-in">
+                <div className="flex items-center gap-3 mb-4">
+                  <button onClick={()=>setBookingStep(1)} className="barber-back-btn w-9 h-9 rounded-full flex items-center justify-center transition-all">←</button>
+                  <h2 className="barber-section-title text-xl font-black flex items-center gap-3">
+                    <span className="barber-icon-badge">📅</span>
+                    اختر الموعد
+                  </h2>
                 </div>
-                {/* Selected service summary */}
-                <div className="bg-slate-50 rounded-2xl p-4 flex items-center gap-3 border border-slate-100">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{backgroundColor:settings.primaryColor+'22'}}>✂️</div>
+                {/* Service summary */}
+                <div className="barber-card rounded-2xl p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl barber-icon-box shrink-0">✂️</div>
                   <div>
-                    <p className="font-black text-sm text-slate-900">{selectedService?.name}</p>
-                    <p className="text-[11px] font-bold text-slate-400">{(selectedService?.price||0).toLocaleString()} د.ع · {selectedService?.duration} دقيقة</p>
+                    <p className="font-black text-sm text-gold">{selectedService?.name}</p>
+                    <p className="text-[11px] font-bold text-gold/40">{(selectedService?.price||0).toLocaleString()} د.ع · {selectedService?.duration} دقيقة</p>
                   </div>
                 </div>
                 {/* Date pills */}
                 <div>
-                  <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">اختر اليوم</p>
+                  <p className="text-[10px] font-black text-gold/40 uppercase tracking-widest mb-3">اختر اليوم</p>
                   <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                     {availableDates.map(({str,label})=>{
                       const active=selectedDate===str;
                       return(
                         <button key={str} type="button" onClick={()=>{setSelectedDate(str);setSelectedSlot('');}}
-                          className={`shrink-0 px-5 py-3 rounded-2xl font-black text-[11px] transition-all border ${active?'text-white border-transparent shadow-lg':'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
-                          style={active?{backgroundColor:settings.primaryColor}:{}}>
+                          className={`shrink-0 px-5 py-3 rounded-2xl font-black text-[11px] transition-all ${active?'barber-btn-primary':'barber-btn-ghost'}`}>
                           {label}
                         </button>
                       );
@@ -1167,15 +1200,14 @@ export default function App() {
                   const slots=generateSlots(selectedDate);
                   return(
                     <div>
-                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">اختر الوقت</p>
-                      {slots.length===0&&<p className="text-slate-400 text-sm font-bold text-center py-6">لا توجد مواعيد متاحة في هذا اليوم</p>}
+                      <p className="text-[10px] font-black text-gold/40 uppercase tracking-widest mb-3">اختر الوقت</p>
+                      {slots.length===0&&<p className="text-gold/30 text-sm font-bold text-center py-6">لا توجد مواعيد متاحة في هذا اليوم</p>}
                       <div className="grid grid-cols-3 gap-2">
                         {slots.map(({label,val})=>{
                           const active=selectedSlot===val;
                           return(
                             <button key={val} type="button" onClick={()=>setSelectedSlot(val)}
-                              className={`py-3 rounded-2xl font-black text-[11px] transition-all border ${active?'text-white border-transparent shadow-lg':'bg-white border-slate-200 text-slate-700 hover:border-slate-300'}`}
-                              style={active?{backgroundColor:settings.primaryColor}:{}}>
+                              className={`py-3 rounded-2xl font-black text-[11px] transition-all ${active?'barber-btn-primary':'barber-btn-ghost'}`}>
                               {label}
                             </button>
                           );
@@ -1186,8 +1218,7 @@ export default function App() {
                 })()}
                 {selectedDate && selectedSlot && (
                   <button onClick={()=>setBookingStep(3)}
-                    className="w-full py-5 text-white font-black rounded-2xl text-sm shadow-xl active:scale-95 transition-all mt-2"
-                    style={{backgroundColor:settings.primaryColor}}>
+                    className="w-full py-5 barber-btn-primary font-black rounded-2xl text-sm active:scale-95 transition-all mt-2">
                     التالي ←
                   </button>
                 )}
@@ -1196,61 +1227,70 @@ export default function App() {
 
             {/* STEP 3 — Customer info */}
             {bookingStep === 3 && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 mb-2">
-                  <button onClick={()=>setBookingStep(2)} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition-all">←</button>
-                  <h2 className="text-xl font-black text-slate-900">بياناتك 👤</h2>
+              <div className="space-y-4 animate-fade-in">
+                <div className="flex items-center gap-3 mb-4">
+                  <button onClick={()=>setBookingStep(2)} className="barber-back-btn w-9 h-9 rounded-full flex items-center justify-center transition-all">←</button>
+                  <h2 className="barber-section-title text-xl font-black flex items-center gap-3">
+                    <span className="barber-icon-badge">👤</span>
+                    بياناتك
+                  </h2>
                 </div>
                 {/* Summary card */}
-                <div className="bg-slate-50 rounded-2xl p-4 space-y-2 border border-slate-100">
-                  <div className="flex justify-between text-sm"><span className="font-bold text-slate-500">الخدمة</span><span className="font-black text-slate-900">{selectedService?.name}</span></div>
-                  <div className="flex justify-between text-sm"><span className="font-bold text-slate-500">التاريخ</span><span className="font-black text-slate-900">{selectedDate}</span></div>
-                  <div className="flex justify-between text-sm"><span className="font-bold text-slate-500">الوقت</span><span className="font-black text-slate-900">{fmtSlot(selectedSlot)}</span></div>
-                  <div className="flex justify-between text-sm border-t border-slate-200 pt-2 mt-1">
-                    <span className="font-bold text-slate-500">السعر</span>
-                    <span className="font-black text-lg" style={{color:settings.primaryColor}}>{(selectedService?.price||0).toLocaleString()} د.ع</span>
+                <div className="barber-card rounded-2xl p-5 space-y-3">
+                  {[
+                    {label:'الخدمة', val:selectedService?.name},
+                    {label:'التاريخ', val:selectedDate},
+                    {label:'الوقت',  val:fmtSlot(selectedSlot)},
+                  ].map(({label,val})=>(
+                    <div key={label} className="flex justify-between text-sm">
+                      <span className="font-bold text-gold/40">{label}</span>
+                      <span className="font-black text-gold">{val}</span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between text-sm barber-divider-top pt-3 mt-1">
+                    <span className="font-bold text-gold/40">السعر</span>
+                    <span className="font-black text-xl text-gold">{(selectedService?.price||0).toLocaleString()} <span className="text-sm">د.ع</span></span>
                   </div>
                 </div>
                 <input type="text" value={customerName} onChange={e=>setCustomerName(e.target.value)}
-                  className="w-full p-5 bg-slate-50 rounded-2xl text-sm border-2 border-slate-100 font-bold text-right outline-none focus:border-blue-400"
+                  className="barber-input w-full p-5 rounded-2xl text-sm font-bold text-right outline-none"
                   placeholder="الاسم الكامل" />
                 <input type="tel" value={customerPhone} onChange={e=>setCustomerPhone(e.target.value)}
-                  className="w-full p-5 bg-slate-50 rounded-2xl text-sm border-2 border-slate-100 font-bold text-right outline-none focus:border-blue-400"
+                  className="barber-input w-full p-5 rounded-2xl text-sm font-bold text-right outline-none"
                   placeholder="رقم الهاتف" />
                 {settings.bookingNote && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-right">
-                    <p className="text-xs font-black text-amber-900">{settings.bookingNote}</p>
+                  <div className="barber-note rounded-2xl p-4 text-right">
+                    <p className="text-xs font-black text-gold/70">💡 {settings.bookingNote}</p>
                   </div>
                 )}
                 {bookingError && (
-                  <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-right">
-                    <p className="text-sm font-black text-red-700">❌ {bookingError}</p>
+                  <div className="bg-red-900/20 border border-red-500/30 rounded-2xl p-4 text-right">
+                    <p className="text-sm font-black text-red-400">❌ {bookingError}</p>
                   </div>
                 )}
                 <button
                   disabled={!customerName||!customerPhone||bookingSubmitting}
                   onClick={bookAppointment}
-                  className="w-full py-6 text-white font-black rounded-2xl text-sm shadow-xl disabled:opacity-40 disabled:grayscale transition-all active:scale-95 flex items-center justify-center gap-2"
-                  style={{backgroundColor:settings.primaryColor}}>
+                  className="w-full py-6 barber-btn-primary font-black rounded-2xl text-sm disabled:opacity-30 transition-all active:scale-95 flex items-center justify-center gap-2">
                   {bookingSubmitting
-                    ? <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin inline-block"></span>جارٍ الحجز...</>
-                    : 'تأكيد الحجز 💈'}
+                    ? <><span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin inline-block"></span>جارٍ الحجز...</>
+                    : '✦ تأكيد الحجز'}
                 </button>
               </div>
             )}
           </div>
 
-          {/* CONFIRMATION POPUP */}
+          {/* CONFIRMATION POPUP — luxury */}
           {confirmedApptNum && (
-            <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
-              <div className="bg-white rounded-[3rem] p-10 text-center max-w-xs w-full shadow-2xl animate-slide-up" dir="rtl">
+            <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/90 backdrop-blur-md p-6">
+              <div className="barber-popup rounded-[3rem] p-10 text-center max-w-xs w-full animate-slide-up" dir="rtl">
                 <div className="text-6xl mb-4">💈</div>
-                <p className="text-slate-400 text-[11px] font-black uppercase tracking-widest mb-2">تم تأكيد موعدك</p>
-                <p className="text-8xl font-black tracking-tighter leading-none mb-1" style={{color:settings.primaryColor}}>#{confirmedApptNum}</p>
-                <p className="text-slate-400 text-xs font-bold mt-1 mb-8">احتفظ برقم موعدك</p>
+                <p className="text-gold/50 text-[10px] font-black uppercase tracking-[0.3em] mb-3">تم تأكيد موعدك</p>
+                <div className="barber-appt-num text-8xl font-black tracking-tighter leading-none mb-1">#{confirmedApptNum}</div>
+                <p className="text-gold/30 text-xs font-bold mt-2 mb-8 tracking-widest">احتفظ برقم موعدك</p>
+                <div className="barber-divider-h w-full h-px mb-6 opacity-20" />
                 <button onClick={()=>setConfirmedApptNum(null)}
-                  className="w-full py-4 text-white font-black rounded-2xl text-sm active:scale-95 transition-all"
-                  style={{backgroundColor:settings.primaryColor}}>
+                  className="w-full py-4 barber-btn-primary font-black rounded-2xl text-sm active:scale-95 transition-all">
                   حسناً 👍
                 </button>
               </div>
@@ -1260,14 +1300,187 @@ export default function App() {
       )}
 
       <style dangerouslySetInnerHTML={{ __html: `
+        /* ── LUXURY MIDNIGHT GOLD THEME ── */
+        :root {
+          --gold: #D4AF37;
+          --gold-light: #F0D060;
+          --gold-dim: rgba(212,175,55,0.15);
+          --midnight: #0A0A0F;
+          --midnight-2: #0F0F16;
+          --midnight-3: #141420;
+          --midnight-4: #1A1A28;
+          --gold-border: rgba(212,175,55,0.18);
+          --gold-border-strong: rgba(212,175,55,0.35);
+        }
+        .text-gold { color: var(--gold); }
+        .bg-gold { background: var(--gold); }
+
+        /* Background */
+        .barber-bg {
+          background: var(--midnight);
+          background-image:
+            radial-gradient(ellipse at 20% 10%, rgba(212,175,55,0.04) 0%, transparent 50%),
+            radial-gradient(ellipse at 80% 90%, rgba(212,175,55,0.03) 0%, transparent 50%);
+        }
+
+        /* Nav */
+        .barber-nav {
+          background: rgba(15,15,22,0.95);
+          border: 1px solid var(--gold-border);
+          backdrop-filter: blur(20px);
+        }
+        .barber-nav-active {
+          background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+          color: #000;
+          box-shadow: 0 4px 20px rgba(212,175,55,0.3);
+        }
+
+        /* Cards */
+        .barber-card {
+          background: var(--midnight-3);
+          border: 1px solid var(--gold-border);
+          color: var(--gold);
+          transition: all 0.2s;
+        }
+        .barber-card:hover {
+          border-color: var(--gold-border-strong);
+          box-shadow: 0 8px 30px rgba(212,175,55,0.08);
+        }
+        .barber-card-selected {
+          background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+          border: 2px solid var(--gold);
+          box-shadow: 0 8px 30px rgba(212,175,55,0.25);
+        }
+
+        /* Buttons */
+        .barber-btn-primary {
+          background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+          color: #000;
+          font-weight: 900;
+          box-shadow: 0 4px 20px rgba(212,175,55,0.25);
+        }
+        .barber-btn-primary:hover { box-shadow: 0 6px 28px rgba(212,175,55,0.35); }
+        .barber-btn-ghost {
+          background: var(--midnight-3);
+          border: 1px solid var(--gold-border);
+          color: var(--gold);
+        }
+        .barber-btn-ghost:hover { border-color: var(--gold-border-strong); }
+        .barber-back-btn {
+          background: var(--midnight-3);
+          border: 1px solid var(--gold-border);
+          color: var(--gold);
+        }
+
+        /* Inputs */
+        .barber-input {
+          background: var(--midnight-3);
+          border: 1px solid var(--gold-border);
+          color: var(--gold);
+          transition: border-color 0.2s;
+        }
+        .barber-input::placeholder { color: rgba(212,175,55,0.25); }
+        .barber-input:focus { border-color: var(--gold-border-strong); outline: none; }
+
+        /* Logo ring */
+        .barber-logo-ring {
+          border: 2px solid var(--gold-border-strong);
+          box-shadow: 0 0 40px rgba(212,175,55,0.15), 0 0 0 6px rgba(212,175,55,0.05);
+        }
+        .barber-logo-fallback {
+          background: var(--midnight-3);
+        }
+
+        /* Badge */
+        .barber-badge {
+          background: linear-gradient(135deg, var(--gold), var(--gold-light));
+          box-shadow: 0 2px 10px rgba(212,175,55,0.4);
+        }
+
+        /* Pill (hours) */
+        .barber-pill {
+          background: var(--midnight-3);
+          border: 1px solid var(--gold-border);
+        }
+
+        /* Social buttons */
+        .barber-social-btn {
+          background: var(--midnight-3);
+          border: 1px solid var(--gold-border);
+          color: var(--gold);
+          transition: all 0.2s;
+        }
+        .barber-social-btn:hover { border-color: var(--gold-border-strong); }
+
+        /* Decorative */
+        .barber-divider-h { background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+        .barber-divider-inactive { background: rgba(212,175,55,0.08); }
+        .barber-divider-top { border-top: 1px solid var(--gold-border); }
+
+        /* Icon elements */
+        .barber-icon-badge {
+          width: 2rem; height: 2rem;
+          background: var(--gold-dim);
+          border: 1px solid var(--gold-border);
+          border-radius: 0.75rem;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1rem;
+        }
+        .barber-icon-box {
+          background: var(--midnight-4);
+          border: 1px solid var(--gold-border);
+        }
+        .barber-img-ring { border: 1.5px solid var(--gold-border); }
+
+        /* Step indicator */
+        .barber-step-active {
+          background: linear-gradient(135deg, var(--gold), var(--gold-light));
+          color: #000;
+          box-shadow: 0 4px 14px rgba(212,175,55,0.3);
+        }
+        .barber-step-inactive {
+          background: var(--midnight-3);
+          border: 1px solid var(--gold-border);
+          color: rgba(212,175,55,0.2);
+        }
+
+        /* Section titles */
+        .barber-section-title { color: var(--gold); }
+
+        /* Note */
+        .barber-note {
+          background: rgba(212,175,55,0.05);
+          border: 1px solid var(--gold-border);
+        }
+
+        /* Popup */
+        .barber-popup {
+          background: var(--midnight-2);
+          border: 1px solid var(--gold-border-strong);
+          box-shadow: 0 40px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(212,175,55,0.1);
+        }
+        .barber-appt-num { color: var(--gold); }
+
+        /* Scrollbar */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.8s ease-out forwards; }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        @keyframes slideUp { from { transform: translateY(100%); opacity:0; } to { transform: translateY(0); opacity:1; } }
         .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
         .animate-shake { animation: shake 0.2s ease-in-out 0s 2; }
+
+        /* Animate gold pulse */
+        .bg-gold { background: var(--gold); }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+        .animate-pulse { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+
+        /* Owner panel — keep light */
         .owner-panel { background: #f8fafc; min-height: 100vh; padding-bottom: 10rem; }
         .owner-panel [class*="bg-slate-900"] { background: #ffffff !important; }
         .owner-panel [class*="bg-black/40"], .owner-panel [class*="bg-black/30"], .owner-panel [class*="bg-black/50"] { background: #f1f5f9 !important; }
@@ -1280,6 +1493,8 @@ export default function App() {
         .owner-panel [class*="border-white/5"], .owner-panel [class*="border-white/10"] { border-color: #e2e8f0 !important; }
         .owner-panel [class*="bg-black/80"], .owner-panel [class*="bg-black/90"] { background: #1e293b !important; }
         .owner-panel h3[class*="text-orange"] { color: #ea580c !important; }
+        /* Override barber-bg for owner panel area */
+        .owner-panel-wrap { background: #f8fafc !important; }
       `}} />
     </div>
   );
