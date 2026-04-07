@@ -27,45 +27,27 @@ import {
 /**
  * 🛠️ CONFIGURATION
  */
-const localConfig = {
-  apiKey: "AIzaSyBi9O20ep4sQEfAQSvQAexHzzT1wjj8cHc",
-  authDomain: "karbala-burger-app.firebaseapp.com",
-  projectId: "karbala-burger-app",
-  storageBucket: "karbala-burger-app.firebasestorage.app",
-  messagingSenderId: "112064338237",
-  appId: "1:112064338237:web:93b7154a4504704d82cd54",
-  measurementId: "G-XRPEGJZRHG"
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBaFJYD3XREHxyFAcP2rvzgU-MZ4uLDGNs",
+  authDomain: "barbershop-dc73f.firebaseapp.com",
+  projectId: "barbershop-dc73f",
+  storageBucket: "barbershop-dc73f.firebasestorage.app",
+  messagingSenderId: "406053033495",
+  appId: "1:406053033495:web:d02f7b2eddbaaf46c72e52",
+  measurementId: "G-C26FMJ59E5"
 };
 
-const configFromEnv = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "",
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "",
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "",
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "",
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "",
-  appId: process.env.REACT_APP_FIREBASE_APP_ID || "",
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || ""
-};
-
-const envFirebaseReady =
-  Boolean(configFromEnv.apiKey && configFromEnv.authDomain && configFromEnv.projectId && configFromEnv.appId);
-
-const firebaseConfig =
-  typeof window !== "undefined" && window.__firebase_config
-    ? JSON.parse(window.__firebase_config)
-    : envFirebaseReady
-      ? configFromEnv
-      : localConfig;
-
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-// Note: offline handling is done via Firebase error catching, not navigator.onLine
-
-const appId =
-  typeof window !== "undefined" && window.__app_id
-    ? window.__app_id
-    : process.env.REACT_APP_APP_ID || "barber-booking-pro-v1";
+const analytics = getAnalytics(app);
 
 // ── FIREBASE PATH HELPERS ──────────────────────────────────────────
 // Teaching note: Each helper returns a Firebase reference.
