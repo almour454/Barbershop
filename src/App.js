@@ -76,7 +76,7 @@ const appId =
 const getServicesCollection  = () => collection(db, 'artifacts', appId, 'public',  'data', 'services');
 const getSettingsDoc         = () => doc(db,        'artifacts', appId, 'public',  'data', 'settings', 'global');
 const getOwnerDoc            = () => doc(db,        'artifacts', appId, 'private', 'data', 'admin',    'owner');
-const getApptCollection      = (dateStr) => collection(db, 'artifacts', appId, 'public', 'data', 'appointments', dateStr, 'items');
+const getApptCollection      = (dateStr) => collection(db, 'artifacts', appId, 'private', 'data', 'appointments', dateStr, 'items');
 const getApptCounterDoc      = (dateStr) => doc(db, 'artifacts', appId, 'public',  'data', 'counters', dateStr);
 const getBlockedSlotsDoc     = (dateStr) => doc(db, 'artifacts', appId, 'public',  'data', 'blocked',  dateStr);
 const getDateStr             = () => new Date().toLocaleDateString('en-CA');
@@ -390,6 +390,10 @@ export default function App() {
   // a unique sequential number for the day — same pattern as restaurant orders.
   const bookAppointment = async () => {
     if (!selectedService || !selectedDate || !selectedSlot || !customerName || !customerPhone) return;
+    if (!user) {
+      setBookingError('خطأ في المصادقة. أعد تحميل الصفحة وحاول مجدداً.');
+      return;
+    }
     setBookingSubmitting(true);
     setBookingError(null);
     try {
@@ -404,14 +408,14 @@ export default function App() {
         apptNumber,
         customerName,
         customerPhone,
-        serviceId:   selectedService.id,
-        serviceName: selectedService.name,
+        serviceId:    selectedService.id,
+        serviceName:  selectedService.name,
         servicePrice: selectedService.price,
-        duration:    selectedService.duration,
-        timeSlot:    selectedSlot,
-        dateStr:     selectedDate,
-        status:      'upcoming',
-        createdAt:   new Date().toISOString(),
+        duration:     selectedService.duration,
+        timeSlot:     selectedSlot,
+        dateStr:      selectedDate,
+        status:       'upcoming',
+        createdAt:    new Date().toISOString(),
       });
       setConfirmedApptNum(apptNumber);
       setBookingStep(1);
@@ -421,8 +425,13 @@ export default function App() {
       setCustomerName('');
       setCustomerPhone('');
     } catch (e) {
-      console.error(e);
-      setBookingError('فشل الحجز. تحقق من الاتصال وأعد المحاولة.');
+      console.error('Booking error:', e);
+      const msg = e?.code === 'permission-denied'
+        ? 'خطأ في الصلاحيات (permission-denied). تحقق من Firebase Rules.'
+        : e?.message
+          ? `فشل الحجز: ${e.message}`
+          : 'فشل الحجز. تحقق من الاتصال وأعد المحاولة.';
+      setBookingError(msg);
     }
     setBookingSubmitting(false);
   };
@@ -431,7 +440,7 @@ export default function App() {
   const updateApptStatus = async (appt, status) => {
     try {
       await updateDoc(
-        doc(db, 'artifacts', appId, 'public', 'data', 'appointments', appt.dateStr, 'items', appt.id),
+        doc(db, 'artifacts', appId, 'private', 'data', 'appointments', appt.dateStr, 'items', appt.id),
         { status }
       );
     } catch (e) { console.error(e); }
@@ -441,7 +450,7 @@ export default function App() {
   const deleteAppt = async (appt) => {
     if (!window.confirm(`حذف موعد #${appt.apptNumber} للزبون ${appt.customerName}؟`)) return;
     try {
-      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'appointments', appt.dateStr, 'items', appt.id));
+      await deleteDoc(doc(db, 'artifacts', appId, 'private', 'data', 'appointments', appt.dateStr, 'items', appt.id));
     } catch (e) { console.error(e); }
   };
 
@@ -1069,10 +1078,28 @@ export default function App() {
             {/* Logo */}
             {settings.logoUrl ? (
               <div className="flex justify-center mb-6">
-                <div className="relative">
-                  <div className="w-28 h-28 rounded-2xl overflow-hidden" style={{boxShadow:'0 8px 40px rgba(0,0,0,0.5)'}}>
-                    <img src={settings.logoUrl} alt={settings.shopName} className="w-full h-full object-cover" onError={e=>e.target.style.display='none'} />
-                  </div>
+                <div className="relative inline-flex items-center justify-center">
+                  {/* Glow layer behind the image */}
+                  <div className="absolute inset-0 rounded-full pointer-events-none" style={{
+                    background: 'radial-gradient(circle, rgba(212,175,55,0.35) 0%, transparent 70%)',
+                    filter: 'blur(18px)',
+                    transform: 'scale(1.4)',
+                    animation: 'logoGlow 4s ease-in-out infinite'
+                  }} />
+                  <img
+                    src={settings.logoUrl}
+                    alt={settings.shopName}
+                    className="relative"
+                    style={{
+                      maxWidth: '110px',
+                      maxHeight: '110px',
+                      width: 'auto',
+                      height: 'auto',
+                      objectFit: 'contain',
+                      filter: 'drop-shadow(0 0 18px rgba(212,175,55,0.4))',
+                    }}
+                    onError={e => e.target.style.display = 'none'}
+                  />
                 </div>
               </div>
             ) : (
