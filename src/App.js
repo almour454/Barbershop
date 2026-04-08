@@ -298,7 +298,10 @@ export default function App() {
           return incoming;
         });
       },
-      (err) => console.error("Appt listener error:", err)
+      (err) => {
+        console.error("Appt listener error:", err);
+        setDataError(`خطأ في تحميل المواعيد: ${err.code || err.message}`);
+      }
     );
     return () => unsub();
   }, [isUnlocked]);
@@ -399,6 +402,8 @@ export default function App() {
     try {
       const counterRef = getApptCounterDoc(selectedDate);
       let apptNumber = 1;
+      console.log('Booking attempt - user:', user?.uid, 'isAnonymous:', user?.isAnonymous, 'date:', selectedDate);
+      console.log('Writing to path: artifacts/' + appId + '/private/data/appointments/' + selectedDate + '/items');
       await runTransaction(db, async (tx) => {
         const snap = await tx.get(counterRef);
         apptNumber = snap.exists() ? (snap.data().count || 0) + 1 : 1;
@@ -625,6 +630,19 @@ export default function App() {
           </div>
         ) : (
           <div className="owner-panel max-w-4xl mx-auto p-6 pb-40 space-y-6" dir="rtl">
+
+            {/* 🔍 DEBUG PANEL - remove after fixing */}
+            <div className="bg-yellow-900/40 border border-yellow-500/50 rounded-2xl p-4 text-xs font-mono space-y-1" dir="ltr">
+              <p className="text-yellow-300 font-black text-[10px] mb-2">🔍 DEBUG INFO</p>
+              <p className="text-yellow-200">appId: <span className="text-white">{appId}</span></p>
+              <p className="text-yellow-200">user uid: <span className="text-white">{user?.uid || 'null'}</span></p>
+              <p className="text-yellow-200">user isAnonymous: <span className="text-white">{String(user?.isAnonymous)}</span></p>
+              <p className="text-yellow-200">isUnlocked: <span className="text-white">{String(isUnlocked)}</span></p>
+              <p className="text-yellow-200">today: <span className="text-white">{getDateStr()}</span></p>
+              <p className="text-yellow-200">appt path: <span className="text-white">artifacts/{appId}/private/data/appointments/{getDateStr()}/items</span></p>
+              <p className="text-yellow-200">appointments loaded: <span className="text-white">{appointments.length}</span></p>
+              {dataError && <p className="text-red-400 font-black">ERROR: {dataError}</p>}
+            </div>
 
             {/* Tab bar */}
             <div className="flex items-center justify-between gap-3">
