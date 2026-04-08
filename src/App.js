@@ -26,15 +26,17 @@ import {
 
 /**
  * 🛠️ CONFIGURATION
+ * Real keys are set in Vercel environment variables — never hardcode here.
+ * For local dev create a .env file with REACT_APP_FIREBASE_* values.
  */
 const localConfig = {
-  apiKey: "AIzaSyBaFJYD3XREHxyFAcP2rvzgU-MZ4uLDGNs",
-  authDomain: "barbershop-dc73f.firebaseapp.com",
-  projectId: "barbershop-dc73f",
-  storageBucket: "barbershop-dc73f.firebasestorage.app",
-  messagingSenderId: "406053033495",
-  appId: "1:406053033495:web:d02f7b2eddbaaf46c72e52",
-  measurementId: "G-C26FMJ59E5"
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: "",
+  measurementId: ""
 };
 
 const configFromEnv = {
@@ -138,7 +140,7 @@ export default function App() {
   const [settings, setSettings] = useState({
     shopName:        "MY BARBER SHOP",
     shopNameAr:      "صالون الحلاقة",
-    primaryColor:    "#1e293b",
+    primaryColor:    "#D4AF37",
     bgColor:         "#ffffff",
     whatsapp:        "964780000000",
     workingHoursStr: "9:00 AM - 10:00 PM",
@@ -980,13 +982,12 @@ export default function App() {
                         ))}
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 bg-black/40 p-4 rounded-xl border border-white/5">
-                      <span className="text-white text-[10px] font-bold">اللون الأساسي</span>
-                      <input type="color" className="w-10 h-10 rounded bg-transparent border-0 cursor-pointer" value={settings.primaryColor||"#1e293b"} onChange={e=>updateGlobalSettings("primaryColor",e.target.value)} />
-                    </div>
-                    <div className="flex items-center gap-4 bg-black/40 p-4 rounded-xl border border-white/5">
-                      <span className="text-white text-[10px] font-bold">لون الخلفية</span>
-                      <input type="color" className="w-10 h-10 rounded bg-transparent border-0 cursor-pointer" value={settings.bgColor||"#ffffff"} onChange={e=>updateGlobalSettings("bgColor",e.target.value)} />
+                    <div className="md:col-span-2 flex items-center gap-4 bg-black/40 p-4 rounded-xl border border-white/5">
+                      <div>
+                        <span className="text-white text-[10px] font-bold block">لون الإبراز (الذهبي)</span>
+                        <span className="text-white/30 text-[9px]">يغير لون جميع العناصر المميزة في الموقع</span>
+                      </div>
+                      <input type="color" className="w-12 h-12 rounded-xl bg-transparent border-0 cursor-pointer ml-auto" value={settings.primaryColor||"#D4AF37"} onChange={e=>updateGlobalSettings("primaryColor",e.target.value)} />
                     </div>
                     <textarea className="bg-black/40 border border-white/5 p-4 rounded-xl text-white text-sm md:col-span-2 h-20 resize-none" placeholder="ملاحظة تظهر للزبون قبل الحجز" value={settings.bookingNote||""} onChange={e=>updateGlobalSettings("bookingNote",e.target.value)} />
                   </div>
@@ -1305,11 +1306,15 @@ export default function App() {
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,400&family=Josefin+Sans:wght@100;300;400;700&display=swap');
 
         :root {
-          --gold: #D4AF37; --gold-light: #F5D76E; --gold-pale: #FFF8DC;
-          --gold-dim: rgba(212,175,55,0.10); --gold-glow: rgba(212,175,55,0.25);
+          --gold: ${settings.primaryColor || '#D4AF37'};
+          --gold-light: ${settings.primaryColor || '#D4AF37'}cc;
+          --gold-pale: ${settings.primaryColor || '#D4AF37'}22;
+          --gold-dim: ${settings.primaryColor || '#D4AF37'}1a;
+          --gold-glow: ${settings.primaryColor || '#D4AF37'}40;
           --ink: #06060A; --ink-2: #0C0C14; --ink-3: #12121C; --ink-4: #181826;
           --glass: rgba(255,255,255,0.03);
-          --gb: rgba(212,175,55,0.15); --gb2: rgba(212,175,55,0.4);
+          --gb: ${settings.primaryColor || '#D4AF37'}26;
+          --gb2: ${settings.primaryColor || '#D4AF37'}66;
         }
 
         .barber-bg, .barber-bg * { font-family: 'Josefin Sans', sans-serif; letter-spacing: 0.02em; }
