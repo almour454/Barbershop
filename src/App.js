@@ -577,11 +577,13 @@ export default function App() {
       <div className="flex justify-center p-4 pt-6">
         <div className="flex barber-nav p-1 rounded-full">
           <button onClick={() => navigateTo("customer")}
-            className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view==='customer'?'barber-nav-active':'text-gold/50 hover:text-gold'}`}>
+            className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view==='customer'?'barber-nav-active':'hover:opacity-80'}`}
+            style={view==='customer'?{}:{color:'rgba(212,175,55,0.6)'}}>
             حجز موعد
           </button>
           <button onClick={() => navigateTo("owner")}
-            className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view==='owner'?'bg-white/10 text-gold shadow-lg':'text-gold/40 hover:text-gold/70'}`}>
+            className={`px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${view==='owner'?'bg-white/10 shadow-lg':'hover:opacity-80'}`}
+            style={{color: view==='owner' ? 'var(--gold)' : 'rgba(212,175,55,0.5)'}}>
             الإدارة
           </button>
         </div>
@@ -1080,15 +1082,15 @@ export default function App() {
               </div>
             )}
 
-            <h1 className="barber-display barber-title text-5xl font-black uppercase tracking-widest leading-tight mb-1">{settings.shopName}</h1>
-             <h2 className="barber-display text-xl font-black text-gold/50 mb-6 tracking-wider italic">{settings.shopNameAr}</h2>
+            <h1 className="barber-display text-5xl font-black uppercase tracking-widest leading-tight mb-1" style={{color:'var(--cream)'}}>{settings.shopName}</h1>
+            <h2 className="barber-display text-xl font-black mb-6 tracking-wider italic" style={{color:'var(--gold)'}}>{settings.shopNameAr}</h2>
 
             <div className="flex flex-col items-center gap-3">
               <div className="flex items-center gap-3 barber-pill px-6 py-2.5 rounded-full">
-                <span className="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
-                <span className="text-[11px] font-black uppercase tracking-widest text-gold/80">{settings.workingHoursStr}</span>
+                <span className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{background:'var(--gold)'}}></span>
+                <span className="text-[11px] font-black uppercase tracking-widest" style={{color:'var(--cream)'}}>{settings.workingHoursStr}</span>
               </div>
-              <p className="text-[11px] font-bold text-gold/40 uppercase tracking-wider">📍 {settings.locationDesc}</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider" style={{color:'var(--cream-dim)'}}>📍 {settings.locationDesc}</p>
               <div className="flex flex-wrap items-center justify-center gap-2 mt-1">
                 {settings.facebookUrl && (
                   <a href={settings.facebookUrl} target="_blank" rel="noreferrer" className="barber-social-btn w-10 h-10 rounded-full flex items-center justify-center shrink-0">
@@ -1112,7 +1114,7 @@ export default function App() {
             {/* Bottom decorative line */}
             <div className="mt-10 flex items-center gap-4 px-8">
               <div className="flex-1 h-px barber-divider-h" />
-              <span className="text-gold/30 text-lg">✦</span>
+              <span className="text-lg" style={{color:'rgba(212,175,55,0.4)'}}>✦</span>
               <div className="flex-1 h-px barber-divider-h" />
             </div>
           </header>
@@ -1128,7 +1130,7 @@ export default function App() {
                     <div className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-sm transition-all ${bookingStep>=n?'barber-step-active':'barber-step-inactive'}`}>
                       {bookingStep>n?'✓':n}
                     </div>
-                    <span className={`text-[9px] font-black uppercase tracking-widest ${bookingStep>=n?'text-gold':'text-gold/20'}`}>{label}</span>
+                    <span className="text-[9px] font-black uppercase tracking-widest" style={{color: bookingStep>=n ? 'var(--gold)' : 'rgba(245,237,214,0.2)'}}>{label}</span>
                   </div>
                   {n<3 && <div className={`flex-1 h-px mb-5 transition-all ${bookingStep>n?'barber-divider-h':'barber-divider-inactive'}`} />}
                 </React.Fragment>
@@ -1507,7 +1509,7 @@ export default function App() {
         }
 
         /* ── TEXT COLORS ── */
-        .barber-section-title { color: var(--gold); letter-spacing: 0.1em; }
+        .barber-section-title { color: var(--gold) !important; letter-spacing: 0.1em; }
         .text-gold { color: var(--gold) !important; }
         .text-cream { color: var(--cream) !important; }
         .text-cream-dim { color: var(--cream-dim) !important; }
