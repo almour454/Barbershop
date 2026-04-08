@@ -1143,7 +1143,7 @@ export default function App() {
                   اختر الخدمة
                 </h2>
                 {services.length === 0 && (
-                  <div className="barber-card text-center py-12 text-gold/40 font-bold rounded-[2rem]">لا توجد خدمات بعد</div>
+                  <div className="barber-card text-center py-12 font-bold rounded-[2rem]" style={{color:'var(--cream-muted)'}}>لا توجد خدمات بعد</div>
                 )}
                 {services.map(svc=>(
                   <button key={svc.id} type="button" onClick={()=>{setSelectedService(svc);setBookingStep(2);}}
@@ -1153,12 +1153,12 @@ export default function App() {
                       : <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shrink-0 barber-icon-box">✂️</div>
                     }
                     <div className="flex-1 min-w-0">
-                      <p className={`font-black text-lg leading-tight ${selectedService?.id===svc.id?'text-black':'text-gold'}`}>{svc.name}</p>
-                      {svc.desc && <p className={`text-[11px] font-bold mt-0.5 ${selectedService?.id===svc.id?'text-black/60':'text-gold/40'}`}>{svc.desc}</p>}
+                      <p className={`font-black text-lg leading-tight ${selectedService?.id===svc.id?'text-black':''}`} style={selectedService?.id===svc.id?{}:{color:'var(--cream)'}}>{svc.name}</p>
+                      {svc.desc && <p className={`text-[11px] font-bold mt-0.5 ${selectedService?.id===svc.id?'text-black/60':''}`} style={selectedService?.id===svc.id?{}:{color:'var(--cream-muted)'}}>{svc.desc}</p>}
                     </div>
                     <div className="text-right shrink-0">
-                      <p className={`font-black text-xl ${selectedService?.id===svc.id?'text-black':'text-gold'}`}>{(svc.price||0).toLocaleString()}</p>
-                      <p className={`text-[10px] font-bold ${selectedService?.id===svc.id?'text-black/60':'text-gold/40'}`}>د.ع · {svc.duration} د</p>
+                      <p className={`font-black text-xl ${selectedService?.id===svc.id?'text-black':''}`} style={selectedService?.id===svc.id?{}:{color:'var(--gold)'}}>{(svc.price||0).toLocaleString()}</p>
+                      <p className={`text-[10px] font-bold ${selectedService?.id===svc.id?'text-black/60':''}`} style={selectedService?.id===svc.id?{}:{color:'var(--cream-muted)'}}>د.ع · {svc.duration} د</p>
                     </div>
                   </button>
                 ))}
@@ -1179,13 +1179,13 @@ export default function App() {
                 <div className="barber-card rounded-2xl p-4 flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl barber-icon-box shrink-0">✂️</div>
                   <div>
-                    <p className="font-black text-sm text-gold">{selectedService?.name}</p>
-                    <p className="text-[11px] font-bold text-gold/40">{(selectedService?.price||0).toLocaleString()} د.ع · {selectedService?.duration} دقيقة</p>
+                    <p className="font-black text-sm" style={{color:'var(--cream)'}}>{selectedService?.name}</p>
+                    <p className="text-[11px] font-bold" style={{color:'var(--cream-muted)'}}>{(selectedService?.price||0).toLocaleString()} د.ع · {selectedService?.duration} دقيقة</p>
                   </div>
                 </div>
                 {/* Date pills */}
                 <div>
-                  <p className="text-[10px] font-black text-gold/40 uppercase tracking-widest mb-3">اختر اليوم</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest mb-3" style={{color:'var(--cream-muted)'}}>اختر اليوم</p>
                   <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                     {availableDates.map(({str,label})=>{
                       const active=selectedDate===str;
@@ -1203,8 +1203,8 @@ export default function App() {
                   const slots=generateSlots(selectedDate);
                   return(
                     <div>
-                      <p className="text-[10px] font-black text-gold/40 uppercase tracking-widest mb-3">اختر الوقت</p>
-                      {slots.length===0&&<p className="text-gold/30 text-sm font-bold text-center py-6">لا توجد مواعيد متاحة في هذا اليوم</p>}
+                      <p className="text-[10px] font-black uppercase tracking-widest mb-3" style={{color:'var(--cream-muted)'}}>اختر الوقت</p>
+                      {slots.length===0&&<p className="text-sm font-bold text-center py-6" style={{color:'var(--cream-faint)'}}>لا توجد مواعيد متاحة في هذا اليوم</p>}
                       <div className="grid grid-cols-3 gap-2">
                         {slots.map(({label,val})=>{
                           const active=selectedSlot===val;
@@ -1246,13 +1246,13 @@ export default function App() {
                     {label:'الوقت',  val:fmtSlot(selectedSlot)},
                   ].map(({label,val})=>(
                     <div key={label} className="flex justify-between text-sm">
-                      <span className="font-bold text-gold/40">{label}</span>
-                      <span className="font-black text-gold">{val}</span>
+                      <span className="font-bold" style={{color:'var(--cream-muted)'}}>{label}</span>
+                      <span className="font-black" style={{color:'var(--cream)'}}>{val}</span>
                     </div>
                   ))}
                   <div className="flex justify-between text-sm barber-divider-top pt-3 mt-1">
-                    <span className="font-bold text-gold/40">السعر</span>
-                    <span className="font-black text-xl text-gold">{(selectedService?.price||0).toLocaleString()} <span className="text-sm">د.ع</span></span>
+                    <span className="font-bold" style={{color:'var(--cream-muted)'}}>السعر</span>
+                    <span className="font-black text-xl" style={{color:'var(--gold)'}}>{(selectedService?.price||0).toLocaleString()} <span className="text-sm">د.ع</span></span>
                   </div>
                 </div>
                 <input type="text" value={customerName} onChange={e=>setCustomerName(e.target.value)}
@@ -1263,7 +1263,7 @@ export default function App() {
                   placeholder="رقم الهاتف" />
                 {settings.bookingNote && (
                   <div className="barber-note rounded-2xl p-4 text-right">
-                    <p className="text-xs font-black text-gold/70">💡 {settings.bookingNote}</p>
+                    <p className="text-xs font-black" style={{color:'var(--cream-dim)'}}>💡 {settings.bookingNote}</p>
                   </div>
                 )}
                 {bookingError && (
@@ -1306,169 +1306,257 @@ export default function App() {
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,400&family=Josefin+Sans:wght@100;300;400;700&display=swap');
 
         :root {
-          --gold: ${settings.primaryColor || '#D4AF37'};
-          --gold-light: ${settings.primaryColor || '#D4AF37'}cc;
-          --gold-pale: ${settings.primaryColor || '#D4AF37'}22;
-          --gold-dim: ${settings.primaryColor || '#D4AF37'}1a;
-          --gold-glow: ${settings.primaryColor || '#D4AF37'}40;
-          --ink: #06060A; --ink-2: #0C0C14; --ink-3: #12121C; --ink-4: #181826;
-          --glass: rgba(255,255,255,0.03);
-          --gb: ${settings.primaryColor || '#D4AF37'}26;
-          --gb2: ${settings.primaryColor || '#D4AF37'}66;
+          --gold: #D4AF37;
+          --gold-light: #E8CC6A;
+          --gold-pale: rgba(212,175,55,0.18);
+          --gold-dim: rgba(212,175,55,0.10);
+          --gold-glow: rgba(212,175,55,0.35);
+          --ink: #0A0A0F;
+          --ink-2: #0F0F18;
+          --ink-3: #161622;
+          --ink-4: #1E1E2E;
+          --cream: #F5EDD6;
+          --cream-dim: rgba(245,237,214,0.75);
+          --cream-muted: rgba(245,237,214,0.45);
+          --cream-faint: rgba(245,237,214,0.15);
+          --glass: rgba(255,255,255,0.04);
+          --gb: rgba(212,175,55,0.2);
+          --gb2: rgba(212,175,55,0.5);
         }
 
         .barber-bg, .barber-bg * { font-family: 'Josefin Sans', sans-serif; letter-spacing: 0.02em; }
         .barber-display { font-family: 'Cormorant Garamond', serif; }
 
         .barber-bg {
-          background: var(--ink); min-height: 100vh; position: relative; overflow-x: hidden;
+          background: var(--ink);
+          min-height: 100vh;
+          position: relative;
+          overflow-x: hidden;
         }
+
+        /* Rich layered background */
         .barber-bg::before {
           content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
           background:
-            radial-gradient(ellipse 90% 70% at 10% 0%,   rgba(212,175,55,0.07) 0%, transparent 60%),
-            radial-gradient(ellipse 70% 60% at 90% 100%, rgba(212,175,55,0.05) 0%, transparent 60%),
-            radial-gradient(ellipse 50% 50% at 50% 50%,  rgba(212,175,55,0.025) 0%, transparent 70%);
+            radial-gradient(ellipse 80% 60% at 15% 5%,   rgba(212,175,55,0.10) 0%, transparent 55%),
+            radial-gradient(ellipse 60% 50% at 85% 95%,  rgba(212,175,55,0.07) 0%, transparent 55%),
+            radial-gradient(ellipse 40% 40% at 50% 50%,  rgba(212,175,55,0.03) 0%, transparent 70%),
+            linear-gradient(160deg, #0A0A0F 0%, #0F0E18 40%, #0A0A0F 100%);
           animation: bgPulse 14s ease-in-out infinite alternate;
         }
-        @keyframes bgPulse { 0% { opacity:1; transform:scale(1); } 100% { opacity:0.65; transform:scale(1.06); } }
+        @keyframes bgPulse { 0% { opacity:1; transform:scale(1); } 100% { opacity:0.7; transform:scale(1.04); } }
 
+        /* Subtle noise grain */
         .barber-bg::after {
-          content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.55;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+          content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.4;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
         }
         .barber-bg > * { position: relative; z-index: 1; }
 
-        .barber-orb { position:fixed; border-radius:50%; pointer-events:none; z-index:0; filter:blur(90px); }
-        .barber-orb-1 { width:500px; height:500px; top:-150px; right:-150px; background:radial-gradient(circle, rgba(212,175,55,0.09), transparent 70%); animation:orb1 20s ease-in-out infinite; }
-        .barber-orb-2 { width:350px; height:350px; bottom:5%; left:-100px; background:radial-gradient(circle, rgba(212,175,55,0.06), transparent 70%); animation:orb2 25s ease-in-out infinite; }
-        @keyframes orb1 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(-40px,50px) scale(1.15)} 66%{transform:translate(25px,-30px) scale(0.9)} }
-        @keyframes orb2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(50px,-70px) scale(1.2)} }
+        .barber-orb { position:fixed; border-radius:50%; pointer-events:none; z-index:0; filter:blur(100px); }
+        .barber-orb-1 { width:600px; height:600px; top:-200px; right:-200px; background:radial-gradient(circle, rgba(212,175,55,0.10), transparent 70%); animation:orb1 22s ease-in-out infinite; }
+        .barber-orb-2 { width:400px; height:400px; bottom:0%; left:-150px; background:radial-gradient(circle, rgba(212,175,55,0.07), transparent 70%); animation:orb2 28s ease-in-out infinite; }
+        @keyframes orb1 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(-50px,60px) scale(1.12)} 66%{transform:translate(30px,-40px) scale(0.92)} }
+        @keyframes orb2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(60px,-80px) scale(1.18)} }
 
+        /* ── ANIMATIONS ── */
         @keyframes goldShimmer { 0%{background-position:0% center} 100%{background-position:200% center} }
         @keyframes shimmerSweep { 0%{left:-60%} 100%{left:130%} }
         @keyframes logoGlow {
-          0%,100%{box-shadow:0 0 0 1px rgba(212,175,55,0.3),0 0 0 6px rgba(212,175,55,0.06),0 0 60px rgba(212,175,55,0.15),0 20px 60px rgba(0,0,0,0.5)}
-          50%{box-shadow:0 0 0 2px rgba(212,175,55,0.55),0 0 0 10px rgba(212,175,55,0.12),0 0 90px rgba(212,175,55,0.3),0 20px 60px rgba(0,0,0,0.5)}
+          0%,100%{box-shadow:0 0 0 2px rgba(212,175,55,0.35),0 0 0 8px rgba(212,175,55,0.08),0 0 70px rgba(212,175,55,0.18),0 24px 60px rgba(0,0,0,0.6)}
+          50%{box-shadow:0 0 0 3px rgba(212,175,55,0.6),0 0 0 12px rgba(212,175,55,0.14),0 0 100px rgba(212,175,55,0.32),0 24px 60px rgba(0,0,0,0.6)}
         }
-        @keyframes badgePulse { 0%,100%{box-shadow:0 2px 12px rgba(212,175,55,0.5)} 50%{box-shadow:0 2px 24px rgba(212,175,55,0.9)} }
-        @keyframes numGlow { 0%,100%{text-shadow:0 0 40px rgba(212,175,55,0.4)} 50%{text-shadow:0 0 70px rgba(212,175,55,0.8),0 0 20px rgba(212,175,55,0.4)} }
-        @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes badgePulse { 0%,100%{box-shadow:0 2px 14px rgba(212,175,55,0.55)} 50%{box-shadow:0 2px 28px rgba(212,175,55,0.95)} }
+        @keyframes numGlow { 0%,100%{text-shadow:0 0 40px rgba(212,175,55,0.5),0 0 80px rgba(212,175,55,0.2)} 50%{text-shadow:0 0 80px rgba(212,175,55,0.9),0 0 160px rgba(212,175,55,0.4)} }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
         @keyframes slideUp { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
-        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+        @keyframes cardIn { from{opacity:0;transform:translateY(18px) scale(0.97)} to{opacity:1;transform:translateY(0) scale(1)} }
 
         .animate-fade-in { animation: fadeInUp 0.6s cubic-bezier(0.16,1,0.3,1) forwards; }
         .animate-slide-up { animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
         .animate-shake { animation: shake 0.2s ease-in-out 0s 2; }
         .animate-pulse { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
 
-        .barber-card:nth-child(1){animation:fadeInUp 0.5s 0.04s both cubic-bezier(0.16,1,0.3,1)}
-        .barber-card:nth-child(2){animation:fadeInUp 0.5s 0.09s both cubic-bezier(0.16,1,0.3,1)}
-        .barber-card:nth-child(3){animation:fadeInUp 0.5s 0.14s both cubic-bezier(0.16,1,0.3,1)}
-        .barber-card:nth-child(4){animation:fadeInUp 0.5s 0.19s both cubic-bezier(0.16,1,0.3,1)}
-        .barber-card:nth-child(5){animation:fadeInUp 0.5s 0.24s both cubic-bezier(0.16,1,0.3,1)}
+        .barber-card:nth-child(1){animation:cardIn 0.5s 0.04s both cubic-bezier(0.16,1,0.3,1)}
+        .barber-card:nth-child(2){animation:cardIn 0.5s 0.10s both cubic-bezier(0.16,1,0.3,1)}
+        .barber-card:nth-child(3){animation:cardIn 0.5s 0.16s both cubic-bezier(0.16,1,0.3,1)}
+        .barber-card:nth-child(4){animation:cardIn 0.5s 0.22s both cubic-bezier(0.16,1,0.3,1)}
+        .barber-card:nth-child(5){animation:cardIn 0.5s 0.28s both cubic-bezier(0.16,1,0.3,1)}
 
+        /* ── NAV ── */
         .barber-nav {
-          background: rgba(6,6,10,0.88); border:1px solid var(--gb);
-          backdrop-filter:blur(28px); -webkit-backdrop-filter:blur(28px);
-          box-shadow:0 8px 40px rgba(0,0,0,0.5),inset 0 1px 0 rgba(212,175,55,0.08);
+          background: rgba(10,10,15,0.90);
+          border: 1px solid var(--gb);
+          backdrop-filter: blur(32px);
+          -webkit-backdrop-filter: blur(32px);
+          box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(212,175,55,0.10);
         }
         .barber-nav-active {
-          background: linear-gradient(135deg,var(--gold) 0%,var(--gold-light) 50%,var(--gold) 100%);
-          background-size:200% auto; color:#000 !important; font-weight:900; letter-spacing:0.15em;
-          box-shadow:0 4px 28px rgba(212,175,55,0.4),inset 0 1px 0 rgba(255,255,255,0.35);
-          animation:goldShimmer 3s linear infinite;
+          background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
+          background-size: 200% auto;
+          color: #0A0A0F !important;
+          font-weight: 900;
+          letter-spacing: 0.15em;
+          box-shadow: 0 4px 28px rgba(212,175,55,0.5), inset 0 1px 0 rgba(255,255,255,0.4);
+          animation: goldShimmer 3s linear infinite;
         }
 
+        /* ── SERVICE CARDS ── */
         .barber-card {
-          background:rgba(255,255,255,0.025); border:1px solid var(--gb);
-          backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); color:var(--gold);
-          position:relative; overflow:hidden;
-          transition:all 0.3s cubic-bezier(0.16,1,0.3,1);
-          box-shadow:0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(212,175,55,0.06);
+          background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%);
+          border: 1px solid var(--gb);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          color: var(--cream);
+          position: relative;
+          overflow: hidden;
+          transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+          box-shadow: 0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(212,175,55,0.08);
         }
         .barber-card::before {
-          content:''; position:absolute; top:-50%; left:-60%;
-          width:35%; height:200%;
-          background:linear-gradient(105deg,transparent,rgba(212,175,55,0.08),transparent);
-          transform:skewX(-15deg); pointer-events:none;
-          animation: shimmerSweep 4s ease-in-out infinite;
+          content: ''; position: absolute; top: -50%; left: -60%;
+          width: 35%; height: 200%;
+          background: linear-gradient(105deg, transparent, rgba(212,175,55,0.06), transparent);
+          transform: skewX(-15deg); pointer-events: none;
+          animation: shimmerSweep 5s ease-in-out infinite;
         }
-        .barber-card:hover { border-color:var(--gb2); box-shadow:0 12px 50px rgba(212,175,55,0.12),inset 0 1px 0 rgba(212,175,55,0.15); transform:translateY(-2px); }
+        .barber-card:hover {
+          border-color: var(--gb2);
+          box-shadow: 0 16px 55px rgba(212,175,55,0.14), inset 0 1px 0 rgba(212,175,55,0.18);
+          transform: translateY(-3px);
+          background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(212,175,55,0.04) 100%);
+        }
         .barber-card-selected {
-          background:linear-gradient(135deg,var(--gold) 0%,var(--gold-light) 50%,var(--gold) 100%);
-          background-size:200% auto; border:1.5px solid var(--gold-light);
-          animation:goldShimmer 3s linear infinite;
-          box-shadow:0 12px 50px rgba(212,175,55,0.35),inset 0 1px 0 rgba(255,255,255,0.25);
+          background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%) !important;
+          background-size: 200% auto !important;
+          border: 2px solid var(--gold-light) !important;
+          animation: goldShimmer 3s linear infinite !important;
+          box-shadow: 0 12px 55px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+          color: #0A0A0F !important;
         }
+        .barber-card-selected * { color: #0A0A0F !important; }
 
+        /* ── BUTTONS ── */
         .barber-btn-primary {
-          background:linear-gradient(135deg,var(--gold) 0%,var(--gold-light) 50%,var(--gold) 100%);
-          background-size:200% auto; color:#000; font-weight:900; letter-spacing:0.15em;
-          box-shadow:0 4px 28px rgba(212,175,55,0.35),inset 0 1px 0 rgba(255,255,255,0.25);
-          animation:goldShimmer 3s linear infinite; transition:all 0.25s;
+          background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
+          background-size: 200% auto;
+          color: #0A0A0F;
+          font-weight: 900;
+          letter-spacing: 0.15em;
+          box-shadow: 0 4px 28px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+          animation: goldShimmer 3s linear infinite;
+          transition: all 0.25s;
         }
-        .barber-btn-primary:hover { box-shadow:0 8px 44px rgba(212,175,55,0.5),inset 0 1px 0 rgba(255,255,255,0.25); transform:translateY(-2px); }
-        .barber-btn-primary:active { transform:scale(0.97); }
+        .barber-btn-primary:hover { box-shadow: 0 10px 50px rgba(212,175,55,0.6), inset 0 1px 0 rgba(255,255,255,0.3); transform: translateY(-2px); }
+        .barber-btn-primary:active { transform: scale(0.97); }
 
-        .barber-btn-ghost { background:rgba(212,175,55,0.04); border:1px solid var(--gb); color:var(--gold); backdrop-filter:blur(10px); transition:all 0.2s; }
-        .barber-btn-ghost:hover { background:rgba(212,175,55,0.09); border-color:var(--gb2); box-shadow:0 0 20px rgba(212,175,55,0.1); }
-        .barber-back-btn { background:rgba(212,175,55,0.06); border:1px solid var(--gb); color:var(--gold); backdrop-filter:blur(10px); transition:all 0.2s; }
-        .barber-back-btn:hover { border-color:var(--gb2); }
+        .barber-btn-ghost { background: rgba(212,175,55,0.06); border: 1px solid var(--gb); color: var(--cream); backdrop-filter: blur(10px); transition: all 0.2s; }
+        .barber-btn-ghost:hover { background: rgba(212,175,55,0.12); border-color: var(--gb2); box-shadow: 0 0 20px rgba(212,175,55,0.12); }
+        .barber-back-btn { background: rgba(212,175,55,0.06); border: 1px solid var(--gb); color: var(--cream-dim); backdrop-filter: blur(10px); transition: all 0.2s; }
+        .barber-back-btn:hover { border-color: var(--gb2); color: var(--cream); }
 
+        /* ── INPUTS ── */
         .barber-input {
-          background:rgba(212,175,55,0.03); border:1px solid var(--gb); color:var(--gold);
-          letter-spacing:0.06em; backdrop-filter:blur(10px); transition:all 0.25s;
+          background: rgba(245,237,214,0.04);
+          border: 1px solid var(--gb);
+          color: var(--cream);
+          letter-spacing: 0.06em;
+          backdrop-filter: blur(10px);
+          transition: all 0.25s;
         }
-        .barber-input::placeholder { color:rgba(212,175,55,0.2); letter-spacing:0.12em; }
-        .barber-input:focus { border-color:var(--gb2); background:rgba(212,175,55,0.07); box-shadow:0 0 0 3px rgba(212,175,55,0.08),0 0 24px rgba(212,175,55,0.06); outline:none; }
+        .barber-input::placeholder { color: var(--cream-faint); letter-spacing: 0.12em; }
+        .barber-input:focus { border-color: var(--gb2); background: rgba(245,237,214,0.07); box-shadow: 0 0 0 3px rgba(212,175,55,0.10), 0 0 24px rgba(212,175,55,0.08); outline: none; }
 
-        .barber-logo-ring { animation:logoGlow 4s ease-in-out infinite; }
-        .barber-logo-fallback { background:linear-gradient(135deg,var(--ink-3),var(--ink-4)); }
-        .barber-badge { background:linear-gradient(135deg,var(--gold),var(--gold-light)); animation:badgePulse 2.5s ease-in-out infinite; }
-        .barber-pill { background:rgba(212,175,55,0.04); border:1px solid var(--gb); backdrop-filter:blur(14px); }
-        .barber-social-btn { background:rgba(212,175,55,0.04); border:1px solid var(--gb); color:var(--gold); backdrop-filter:blur(10px); transition:all 0.25s; }
-        .barber-social-btn:hover { background:rgba(212,175,55,0.1); border-color:var(--gb2); box-shadow:0 0 20px rgba(212,175,55,0.2); transform:translateY(-2px); }
+        /* ── LOGO & BADGES ── */
+        .barber-logo-ring { animation: logoGlow 4s ease-in-out infinite; }
+        .barber-logo-fallback { background: linear-gradient(135deg, var(--ink-3), var(--ink-4)); }
+        .barber-badge { background: linear-gradient(135deg, var(--gold), var(--gold-light)); animation: badgePulse 2.5s ease-in-out infinite; }
+        .barber-pill { background: rgba(245,237,214,0.04); border: 1px solid var(--gb); backdrop-filter: blur(14px); color: var(--cream-dim); }
+        .barber-social-btn { background: rgba(245,237,214,0.04); border: 1px solid var(--gb); color: var(--cream-dim); backdrop-filter: blur(10px); transition: all 0.25s; }
+        .barber-social-btn:hover { background: rgba(212,175,55,0.12); border-color: var(--gb2); color: var(--cream); box-shadow: 0 0 20px rgba(212,175,55,0.2); transform: translateY(-2px); }
 
-        .barber-divider-h { background:linear-gradient(90deg,transparent,var(--gold),transparent); opacity:0.5; }
-        .barber-divider-inactive { background:rgba(212,175,55,0.07); }
-        .barber-divider-top { border-top:1px solid rgba(212,175,55,0.12); }
+        /* ── DIVIDERS ── */
+        .barber-divider-h { background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.4; }
+        .barber-divider-inactive { background: rgba(245,237,214,0.06); }
+        .barber-divider-top { border-top: 1px solid rgba(212,175,55,0.12); }
 
-        .barber-icon-badge { width:2.2rem; height:2.2rem; background:rgba(212,175,55,0.08); border:1px solid var(--gb); border-radius:0.75rem; display:inline-flex; align-items:center; justify-content:center; font-size:1rem; backdrop-filter:blur(8px); }
-        .barber-icon-box { background:rgba(212,175,55,0.06); border:1px solid var(--gb); backdrop-filter:blur(8px); }
-        .barber-img-ring { border:1px solid var(--gb2); }
+        /* ── ICON ELEMENTS ── */
+        .barber-icon-badge { width: 2.2rem; height: 2.2rem; background: rgba(212,175,55,0.10); border: 1px solid var(--gb); border-radius: 0.75rem; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; backdrop-filter: blur(8px); }
+        .barber-icon-box { background: rgba(212,175,55,0.08); border: 1px solid var(--gb); backdrop-filter: blur(8px); }
+        .barber-img-ring { border: 1px solid var(--gb2); }
 
-        .barber-step-active { background:linear-gradient(135deg,var(--gold),var(--gold-light)); color:#000; font-weight:900; box-shadow:0 4px 24px rgba(212,175,55,0.45),0 0 0 3px rgba(212,175,55,0.15); }
-        .barber-step-inactive { background:rgba(212,175,55,0.04); border:1px solid rgba(212,175,55,0.1); color:rgba(212,175,55,0.15); }
-        .barber-section-title { color:var(--gold); letter-spacing:0.1em; }
-        .barber-note { background:rgba(212,175,55,0.04); border:1px solid rgba(212,175,55,0.1); border-right:3px solid rgba(212,175,55,0.45); }
+        /* ── STEP INDICATOR ── */
+        .barber-step-active {
+          background: linear-gradient(135deg, var(--gold), var(--gold-light));
+          color: #0A0A0F;
+          font-weight: 900;
+          box-shadow: 0 4px 24px rgba(212,175,55,0.5), 0 0 0 3px rgba(212,175,55,0.18);
+        }
+        .barber-step-done {
+          background: linear-gradient(135deg, var(--gold), var(--gold-light));
+          color: #0A0A0F;
+          font-weight: 900;
+          opacity: 0.8;
+        }
+        .barber-step-inactive {
+          background: rgba(245,237,214,0.05);
+          border: 1px solid rgba(245,237,214,0.12);
+          color: rgba(245,237,214,0.25);
+        }
 
+        /* ── TEXT COLORS ── */
+        .barber-section-title { color: var(--gold); letter-spacing: 0.1em; }
+        .text-gold { color: var(--gold) !important; }
+        .text-cream { color: var(--cream) !important; }
+        .text-cream-dim { color: var(--cream-dim) !important; }
+        .text-cream-muted { color: var(--cream-muted) !important; }
+
+        /* ── NOTE BLOCK ── */
+        .barber-note { background: rgba(245,237,214,0.04); border: 1px solid rgba(212,175,55,0.12); border-right: 3px solid rgba(212,175,55,0.5); color: var(--cream-dim); }
+
+        /* ── POPUP / MODAL ── */
         .barber-popup {
-          background:linear-gradient(160deg,rgba(18,18,28,0.99),rgba(6,6,10,1));
-          border:1px solid var(--gb2); backdrop-filter:blur(50px); -webkit-backdrop-filter:blur(50px);
-          position:relative; overflow:hidden;
-          box-shadow:0 50px 100px rgba(0,0,0,0.95),0 0 0 1px rgba(212,175,55,0.08),0 0 120px rgba(212,175,55,0.06) inset;
+          background: linear-gradient(160deg, rgba(20,20,32,0.99), rgba(10,10,15,1));
+          border: 1px solid var(--gb2);
+          backdrop-filter: blur(60px);
+          -webkit-backdrop-filter: blur(60px);
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 60px 120px rgba(0,0,0,0.98), 0 0 0 1px rgba(212,175,55,0.10), 0 0 140px rgba(212,175,55,0.07) inset;
         }
-        .barber-popup::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); opacity:0.7; }
-        .barber-popup::after { content:''; position:absolute; bottom:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(212,175,55,0.3),transparent); }
-        .barber-appt-num { color:var(--gold); font-family:'Cormorant Garamond',serif; animation:numGlow 2.5s ease-in-out infinite; }
+        .barber-popup::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.8; }
+        .barber-popup::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(212,175,55,0.35), transparent); }
+        .barber-appt-num { color: var(--gold); font-family: 'Cormorant Garamond', serif; animation: numGlow 2.5s ease-in-out infinite; }
 
-        .no-scrollbar::-webkit-scrollbar{display:none}
-        .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+        /* ── SLOT BUTTON ── */
+        .barber-slot { background: rgba(245,237,214,0.04); border: 1px solid rgba(245,237,214,0.10); color: var(--cream-dim); transition: all 0.2s; }
+        .barber-slot:hover { background: rgba(212,175,55,0.10); border-color: var(--gb2); color: var(--cream); }
+        .barber-slot-active { background: linear-gradient(135deg, var(--gold), var(--gold-light)); border-color: var(--gold-light); color: #0A0A0F; font-weight: 700; box-shadow: 0 4px 20px rgba(212,175,55,0.4); }
+        .barber-slot-taken { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.04); color: rgba(245,237,214,0.12); cursor: not-allowed; text-decoration: line-through; }
 
-        .owner-panel{background:#f8fafc;min-height:100vh;padding-bottom:10rem}
-        .owner-panel [class*="bg-slate-900"]{background:#ffffff !important}
-        .owner-panel [class*="bg-black/40"],.owner-panel [class*="bg-black/30"],.owner-panel [class*="bg-black/50"]{background:#f1f5f9 !important}
-        .owner-panel input,.owner-panel textarea,.owner-panel select{background:#f8fafc !important;border-color:#cbd5e1 !important;color:#0f172a !important}
-        .owner-panel input::placeholder,.owner-panel textarea::placeholder{color:#94a3b8 !important}
-        .owner-panel [class*="text-white"]:not([class*="bg-"]):not(button):not(a):not(span[class*="bg-"]){color:#1e293b !important}
-        .owner-panel [class*="text-white/30"]{color:#94a3b8 !important}
-        .owner-panel [class*="text-white/40"]{color:#64748b !important}
-        .owner-panel [class*="text-white/50"]{color:#475569 !important}
-        .owner-panel [class*="border-white/5"],.owner-panel [class*="border-white/10"]{border-color:#e2e8f0 !important}
-        .owner-panel [class*="bg-black/80"],.owner-panel [class*="bg-black/90"]{background:#1e293b !important}
-        .owner-panel h3[class*="text-orange"]{color:#ea580c !important}
+        /* ── SUMMARY ROW (step 3 confirmation) ── */
+        .barber-summary-row { border-bottom: 1px solid rgba(245,237,214,0.07); }
+        .barber-summary-label { color: var(--cream-muted); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; }
+        .barber-summary-value { color: var(--cream); font-weight: 700; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none }
+
+        /* ── OWNER PANEL (light) ── */
+        .owner-panel { background: #f8fafc; min-height: 100vh; padding-bottom: 10rem }
+        .owner-panel [class*="bg-slate-900"] { background: #ffffff !important }
+        .owner-panel [class*="bg-black/40"], .owner-panel [class*="bg-black/30"], .owner-panel [class*="bg-black/50"] { background: #f1f5f9 !important }
+        .owner-panel input, .owner-panel textarea, .owner-panel select { background: #f8fafc !important; border-color: #cbd5e1 !important; color: #0f172a !important }
+        .owner-panel input::placeholder, .owner-panel textarea::placeholder { color: #94a3b8 !important }
+        .owner-panel [class*="text-white"]:not([class*="bg-"]):not(button):not(a):not(span[class*="bg-"]) { color: #1e293b !important }
+        .owner-panel [class*="text-white/30"] { color: #94a3b8 !important }
+        .owner-panel [class*="text-white/40"] { color: #64748b !important }
+        .owner-panel [class*="text-white/50"] { color: #475569 !important }
+        .owner-panel [class*="border-white/5"], .owner-panel [class*="border-white/10"] { border-color: #e2e8f0 !important }
+        .owner-panel [class*="bg-black/80"], .owner-panel [class*="bg-black/90"] { background: #1e293b !important }
+        .owner-panel h3[class*="text-orange"] { color: #ea580c !important }
       `}} />
     </div>
   );
