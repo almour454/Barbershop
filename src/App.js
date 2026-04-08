@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { initializeApp } from "firebase/app";
-import { 
+import { getAnalytics } from "firebase/analytics";
   getFirestore, 
   collection, 
   onSnapshot, 
@@ -14,7 +14,7 @@ import {
   query,
   orderBy,
   runTransaction
-} from "firebase/firestore";
+  
 import { 
   getAuth, 
   signInAnonymously, 
@@ -28,8 +28,6 @@ import {
  * 🛠️ CONFIGURATION
  */
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
