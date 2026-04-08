@@ -76,7 +76,7 @@ const appId =
 const getServicesCollection  = () => collection(db, 'artifacts', appId, 'public',  'data', 'services');
 const getSettingsDoc         = () => doc(db,        'artifacts', appId, 'public',  'data', 'settings', 'global');
 const getOwnerDoc            = () => doc(db,        'artifacts', appId, 'private', 'data', 'admin',    'owner');
-const getApptCollection      = (dateStr) => collection(db, 'artifacts', appId, 'private', 'data', 'appointments', dateStr, 'items');
+const getApptCollection      = (dateStr) => collection(db, 'artifacts', appId, 'public', 'data', 'appointments', dateStr, 'items');
 const getApptCounterDoc      = (dateStr) => doc(db, 'artifacts', appId, 'public',  'data', 'counters', dateStr);
 const getBlockedSlotsDoc     = (dateStr) => doc(db, 'artifacts', appId, 'public',  'data', 'blocked',  dateStr);
 const getDateStr             = () => new Date().toLocaleDateString('en-CA');
@@ -431,7 +431,7 @@ export default function App() {
   const updateApptStatus = async (appt, status) => {
     try {
       await updateDoc(
-        doc(db, 'artifacts', appId, 'private', 'data', 'appointments', appt.dateStr, 'items', appt.id),
+        doc(db, 'artifacts', appId, 'public', 'data', 'appointments', appt.dateStr, 'items', appt.id),
         { status }
       );
     } catch (e) { console.error(e); }
@@ -441,7 +441,7 @@ export default function App() {
   const deleteAppt = async (appt) => {
     if (!window.confirm(`حذف موعد #${appt.apptNumber} للزبون ${appt.customerName}؟`)) return;
     try {
-      await deleteDoc(doc(db, 'artifacts', appId, 'private', 'data', 'appointments', appt.dateStr, 'items', appt.id));
+      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'appointments', appt.dateStr, 'items', appt.id));
     } catch (e) { console.error(e); }
   };
 
@@ -943,6 +943,10 @@ export default function App() {
                     <input className="bg-black/40 border border-white/5 p-4 rounded-xl text-white text-sm md:col-span-2" placeholder="الموقع / العنوان" value={settings.locationDesc||""} onChange={e=>updateGlobalSettings("locationDesc",e.target.value)} />
                     <input className="bg-black/40 border border-white/5 p-4 rounded-xl text-white text-sm" placeholder="Facebook URL" value={settings.facebookUrl||""} onChange={e=>updateGlobalSettings("facebookUrl",e.target.value)} />
                     <input className="bg-black/40 border border-white/5 p-4 rounded-xl text-white text-sm" placeholder="Instagram URL" value={settings.instagramUrl||""} onChange={e=>updateGlobalSettings("instagramUrl",e.target.value)} />
+                    <input className="bg-black/40 border border-white/5 p-4 rounded-xl text-white text-sm md:col-span-2" placeholder="TikTok URL" value={settings.tiktokUrl||""} onChange={e=>updateGlobalSettings("tiktokUrl",e.target.value)} />
+                    <input className="bg-black/40 border border-white/5 p-4 rounded-xl text-white text-sm" placeholder="رقم هاتف 1 (للاتصال)" value={settings.contactPhone1||""} onChange={e=>updateGlobalSettings("contactPhone1",e.target.value)} />
+                    <input className="bg-black/40 border border-white/5 p-4 rounded-xl text-white text-sm" placeholder="رقم هاتف 2 (للاتصال)" value={settings.contactPhone2||""} onChange={e=>updateGlobalSettings("contactPhone2",e.target.value)} />
+                    <input className="bg-black/40 border border-white/5 p-4 rounded-xl text-white text-sm md:col-span-2" placeholder="رقم هاتف 3 (للاتصال)" value={settings.contactPhone3||""} onChange={e=>updateGlobalSettings("contactPhone3",e.target.value)} />
                     <input className="bg-black/40 border border-white/5 p-4 rounded-xl text-white text-sm md:col-span-2" placeholder="رابط الشعار (صورة)" value={settings.logoUrl||""} onChange={e=>updateGlobalSettings("logoUrl",e.target.value)} />
                     <div className="bg-black/40 border border-white/5 p-4 rounded-xl md:col-span-2">
                       <p className="text-white text-[10px] font-bold mb-3">أيام الإجازة (اضغط للتبديل)</p>
@@ -1066,11 +1070,8 @@ export default function App() {
             {settings.logoUrl ? (
               <div className="flex justify-center mb-6">
                 <div className="relative">
-                  <div className="w-24 h-24 rounded-full overflow-hidden barber-logo-ring">
-                    <img src={settings.logoUrl} alt={settings.shopName} className="w-full h-full object-contain" onError={e=>e.target.style.display='none'} />
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center barber-badge">
-                    <span className="text-black text-[10px] font-black">✓</span>
+                  <div className="w-28 h-28 rounded-2xl overflow-hidden" style={{boxShadow:'0 8px 40px rgba(0,0,0,0.5)'}}>
+                    <img src={settings.logoUrl} alt={settings.shopName} className="w-full h-full object-cover" onError={e=>e.target.style.display='none'} />
                   </div>
                 </div>
               </div>
@@ -1102,7 +1103,12 @@ export default function App() {
                     <svg viewBox="0 0 24 24" className="w-4 h-4 stroke-current fill-none" strokeWidth="2"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
                   </a>
                 )}
-                {[settings.contactPhone1,settings.contactPhone2].filter(p=>digitsOnly(p).length>=5).map((num,i)=>(
+                {settings.tiktokUrl && (
+                  <a href={settings.tiktokUrl} target="_blank" rel="noreferrer" className="barber-social-btn w-10 h-10 rounded-full flex items-center justify-center shrink-0">
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/></svg>
+                  </a>
+                )}
+                {[settings.contactPhone1, settings.contactPhone2, settings.contactPhone3].filter(p => digitsOnly(p).length >= 5).map((num, i) => (
                   <a key={i} href={`tel:+${digitsOnly(num)}`} dir="ltr" className="barber-social-btn inline-flex items-center gap-1.5 h-10 px-3 rounded-full shrink-0">
                     <svg viewBox="0 0 24 24" className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                     <span className="text-[11px] font-black tabular-nums">{digitsOnly(num)}</span>
@@ -1290,9 +1296,9 @@ export default function App() {
             <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/90 backdrop-blur-md p-6">
               <div className="barber-popup rounded-[3rem] p-10 text-center max-w-xs w-full animate-slide-up" dir="rtl">
                 <div className="text-6xl mb-4">💈</div>
-                <p className="text-gold/50 text-[10px] font-black uppercase tracking-[0.3em] mb-3">تم تأكيد موعدك</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-3" style={{color:'var(--cream-muted)'}}>تم تأكيد موعدك</p>
                 <div className="barber-appt-num text-8xl font-black tracking-tighter leading-none mb-1">#{confirmedApptNum}</div>
-                <p className="text-gold/30 text-xs font-bold mt-2 mb-8 tracking-widest">احتفظ برقم موعدك</p>
+                <p className="text-xs font-bold mt-2 mb-8 tracking-widest" style={{color:'var(--cream-muted)'}}>احتفظ برقم موعدك</p>
                 <div className="barber-divider-h w-full h-px mb-6 opacity-20" />
                 <button onClick={()=>setConfirmedApptNum(null)}
                   className="w-full py-4 barber-btn-primary font-black rounded-2xl text-sm active:scale-95 transition-all">
