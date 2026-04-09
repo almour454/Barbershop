@@ -185,12 +185,14 @@ export default function App() {
   const [adminTab, setAdminTab] = useState(FEATURES.dashboard ? "appointments" : "settings");
   const [dashboardDate, setDashboardDate] = useState(getDateStr()); // owner can browse any date
   const [appointments, setAppointments] = useState([]);
+  const [weekCounts, setWeekCounts] = useState({}); // { "2026-04-12": 3, ... }
+  const [newApptNotif, setNewApptNotif] = useState(null); // { name, date, time }
   const [historyDate, setHistoryDate] = useState("");
   const [historyAppts, setHistoryAppts] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [confirmedApptDay, setConfirmedApptDay] = useState(false);
   const [showReport, setShowReport] = useState(false);
-  const [apptTab, setApptTab] = useState("upcoming"); // "upcoming" | "done"
+  const [apptTab, setApptTab] = useState("upcoming"); // "upcoming" | "done" | "noshow"
   const [autoPrintEnabled, setAutoPrintEnabled] = useState(true);
   const [showMidnightWarning, setShowMidnightWarning] = useState(false);
   const [resetUnlocked, setResetUnlocked] = useState(false);
@@ -307,7 +309,58 @@ export default function App() {
     return () => unsub();
   }, [isUnlocked, dashboardDate]);
 
-  // ── LOAD BOOKED SLOTS WHEN DATE IS SELECTED ───────────────────────
+  // ── LOAD WEEK COUNTS (for quick-nav badges) ──────────────────────
+  useEffect(() => {
+    if (!isUnlocked) return;
+    const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const offDays = settings.offDays || [];
+    const dates = [];
+    for (let i = 0; i <= 7; i++) {
+      const d = new Date(); d.setDate(d.getDate() + i);
+      if (!offDays.includes(dayNames[d.getDay()]))
+        dates.push(d.toLocaleDateString('en-CA'));
+    }
+    const unsubs = dates.map(dateStr => {
+      const q = query(getApptCollection(dateStr));
+      return onSnapshot(q, snap => {
+        const count = snap.docs.filter(d => d.data().status === 'upcoming').length;
+        setWeekCounts(prev => ({ ...prev, [dateStr]: count }));
+      }, () => {});
+    });
+    return () => unsubs.forEach(u => u());
+  }, [isUnlocked, settings.offDays]);
+
+  // ── NEW APPOINTMENT NOTIFICATION ─────────────────────────────────
+  useEffect(() => {
+    if (!isUnlocked) return;
+    // Listen across ALL dates for new upcoming appointments
+    const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const offDays = settings.offDays || [];
+    const unsubs = [];
+    let initialized = false;
+    const knownIds = new Set();
+    for (let i = 0; i <= 14; i++) {
+      const d = new Date(); d.setDate(d.getDate() + i);
+      if (offDays.includes(dayNames[d.getDay()])) continue;
+      const dateStr = d.toLocaleDateString('en-CA');
+      const q = query(getApptCollection(dateStr));
+      unsubs.push(onSnapshot(q, snap => {
+        if (!initialized) { snap.docs.forEach(d => knownIds.add(d.id)); return; }
+        snap.docs.forEach(doc => {
+          if (!knownIds.has(doc.id)) {
+            knownIds.add(doc.id);
+            const a = doc.data();
+            if (a.status === 'upcoming') {
+              setNewApptNotif({ name: a.customerName, date: dateStr, time: a.timeSlot, service: a.serviceName });
+              setTimeout(() => setNewApptNotif(null), 6000);
+            }
+          }
+        });
+      }, () => {}));
+    }
+    setTimeout(() => { initialized = true; }, 3000);
+    return () => unsubs.forEach(u => u());
+  }, [isUnlocked]);
   // Teaching: When customer picks a date, we fetch that day's appointments
   // from Firebase to know which slots are already taken.
   // We also fetch blocked slots (slots owner manually blocked).
@@ -403,8 +456,6 @@ export default function App() {
     try {
       const counterRef = getApptCounterDoc(selectedDate);
       let apptNumber = 1;
-      console.log('Booking attempt - user:', user?.uid, 'isAnonymous:', user?.isAnonymous, 'date:', selectedDate);
-      console.log('Writing to path: artifacts/' + appId + '/private/data/appointments/' + selectedDate + '/items');
       await runTransaction(db, async (tx) => {
         const snap = await tx.get(counterRef);
         apptNumber = snap.exists() ? (snap.data().count || 0) + 1 : 1;
@@ -606,7 +657,7 @@ export default function App() {
 
       {dataError && (
         <div className="px-4 pb-2 max-w-xl mx-auto" dir="rtl">
-          <div className="bg-red-500/15 border border-red-500/35 text-red-900 rounded-2xl px-4 py-3 text-xs font-bold text-center">{dataError}</div>
+          <div className="bg-red-500/15 border border-red-500/35 text-red-400 rounded-2xl px-4 py-3 text-xs font-bold text-center">{dataError}</div>
         </div>
       )}
 
@@ -632,19 +683,21 @@ export default function App() {
         ) : (
           <div className="owner-panel max-w-4xl mx-auto p-6 pb-40 space-y-6" dir="rtl">
 
-            {/* 🔍 DEBUG PANEL - remove after fixing */}
-            <div className="bg-yellow-900/40 border border-yellow-500/50 rounded-2xl p-4 text-xs font-mono space-y-1" dir="ltr">
-              <p className="text-yellow-300 font-black text-[10px] mb-2">🔍 DEBUG INFO</p>
-              <p className="text-yellow-200">appId: <span className="text-white">{appId}</span></p>
-              <p className="text-yellow-200">user uid: <span className="text-white">{user?.uid || 'null'}</span></p>
-              <p className="text-yellow-200">user isAnonymous: <span className="text-white">{String(user?.isAnonymous)}</span></p>
-              <p className="text-yellow-200">isUnlocked: <span className="text-white">{String(isUnlocked)}</span></p>
-              <p className="text-yellow-200">today: <span className="text-white">{getDateStr()}</span></p>
-              <p className="text-yellow-200">dashboard showing: <span className="text-white">{dashboardDate}</span></p>
-              <p className="text-yellow-200">appt path: <span className="text-white">artifacts/{appId}/private/data/appointments/{dashboardDate}/items</span></p>
-              <p className="text-yellow-200">appointments loaded: <span className="text-white">{appointments.length}</span></p>
-              {dataError && <p className="text-red-400 font-black">ERROR: {dataError}</p>}
-            </div>
+            {/* 🔔 NEW APPOINTMENT NOTIFICATION TOAST */}
+            {newApptNotif && (
+              <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] animate-slide-up" style={{minWidth:'300px',maxWidth:'90vw'}}>
+                <div className="bg-green-900 border-2 border-green-400 rounded-2xl p-4 shadow-2xl flex items-start gap-3">
+                  <span className="text-2xl shrink-0">🔔</span>
+                  <div>
+                    <p className="text-green-300 font-black text-sm">موعد جديد!</p>
+                    <p className="text-white font-bold text-[13px]">{newApptNotif.name} — {newApptNotif.service}</p>
+                    <p className="text-green-300/80 text-[11px] font-bold">{newApptNotif.date} · {fmtSlot(newApptNotif.time)}</p>
+                  </div>
+                  <button onClick={()=>setNewApptNotif(null)} className="text-white/40 hover:text-white ml-auto shrink-0 text-lg leading-none">✕</button>
+                </div>
+              </div>
+            )}
+
 
             {/* Tab bar */}
             <div className="flex items-center justify-between gap-3">
@@ -680,21 +733,44 @@ export default function App() {
             {FEATURES.dashboard && adminTab === "appointments" && (
               <div className="space-y-4">
 
-                {/* Date picker row */}
-                <div className="bg-slate-900 rounded-2xl p-4 border border-white/5 flex items-center gap-3">
-                  <span className="text-white/50 text-[11px] font-black uppercase tracking-wide shrink-0">📅 التاريخ</span>
-                  <input
-                    type="date"
-                    value={dashboardDate}
-                    onChange={e => setDashboardDate(e.target.value)}
-                    className="flex-1 bg-black/40 border border-white/10 p-2 rounded-xl text-white text-sm font-bold outline-none focus:border-amber-500"
-                  />
-                  <button
-                    onClick={() => setDashboardDate(getDateStr())}
-                    className="shrink-0 px-3 py-2 rounded-xl text-[11px] font-black transition-all bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30"
-                  >
-                    اليوم
-                  </button>
+                {/* Week quick-nav */}
+                <div className="bg-slate-900 rounded-2xl p-4 border border-white/5 space-y-3">
+                  <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                    {(()=>{
+                      const dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+                      const arLabels={Sunday:'الأحد',Monday:'الاثنين',Tuesday:'الثلاثاء',Wednesday:'الأربعاء',Thursday:'الخميس',Friday:'الجمعة',Saturday:'السبت'};
+                      const offDays=settings.offDays||[];
+                      const pills=[];
+                      for(let i=0;i<=7;i++){
+                        const d=new Date(); d.setDate(d.getDate()+i);
+                        const dayName=dayNames[d.getDay()];
+                        if(offDays.includes(dayName)) continue;
+                        const str=d.toLocaleDateString('en-CA');
+                        const label=i===0?'اليوم':i===1?'غداً':arLabels[dayName];
+                        const count=weekCounts[str]||0;
+                        const active=dashboardDate===str;
+                        pills.push(
+                          <button key={str} onClick={()=>setDashboardDate(str)}
+                            className={`shrink-0 flex flex-col items-center gap-1 px-4 py-2.5 rounded-2xl font-black text-[11px] transition-all border relative ${active?'text-white border-amber-500/60 bg-amber-500/20':'bg-black/30 text-white/50 border-white/10 hover:border-white/25'}`}>
+                            {count>0 && (
+                              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-black rounded-full w-5 h-5 flex items-center justify-center shadow-lg">{count}</span>
+                            )}
+                            <span>{label}</span>
+                            <span className="text-[9px] opacity-60">{d.toLocaleDateString('ar-IQ',{day:'numeric',month:'short'})}</span>
+                          </button>
+                        );
+                      }
+                      return pills;
+                    })()}
+                  </div>
+                  <div className="flex gap-2">
+                    <input type="date" value={dashboardDate} onChange={e=>setDashboardDate(e.target.value)}
+                      className="flex-1 bg-black/40 border border-white/10 p-2.5 rounded-xl text-white text-sm font-bold outline-none focus:border-amber-500" />
+                    <button onClick={()=>setDashboardDate(getDateStr())}
+                      className="shrink-0 px-3 py-2 rounded-xl text-[11px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30 transition-all">
+                      اليوم
+                    </button>
+                  </div>
                 </div>
 
                 {/* Stats */}
@@ -723,7 +799,11 @@ export default function App() {
                   </button>
                   <button onClick={()=>setApptTab("done")}
                     className={`flex-1 py-3 rounded-2xl text-[11px] font-black uppercase tracking-wide transition-all ${apptTab==='done'?'bg-green-600 text-white shadow-lg':'bg-slate-800 text-slate-400'}`}>
-                    منجزة ✓ ({doneAppts.length})
+                    منجزة ✓ ({appointments.filter(a=>a.status==='done').length})
+                  </button>
+                  <button onClick={()=>setApptTab("noshow")}
+                    className={`flex-1 py-3 rounded-2xl text-[11px] font-black uppercase tracking-wide transition-all ${apptTab==='noshow'?'bg-orange-600 text-white shadow-lg':'bg-slate-800 text-slate-400'}`}>
+                    غياب 🚫 ({appointments.filter(a=>a.status==='noshow').length})
                   </button>
                 </div>
 
@@ -840,9 +920,9 @@ export default function App() {
                             style={{backgroundColor:settings.primaryColor}}>
                             ✅ منجز
                           </button>
-                          <button onClick={()=>updateApptStatus(appt,'noshow')}
-                            className="px-4 py-3 rounded-2xl bg-slate-700/50 text-white/40 hover:text-white font-black text-[11px] transition-all">
-                            غياب
+                          <button onClick={()=>{ if(window.confirm(`تأكيد غياب ${appt.customerName}؟`)) updateApptStatus(appt,'noshow'); }}
+                            className="px-4 py-3 rounded-2xl bg-slate-700/50 text-white/60 hover:bg-orange-500/20 hover:text-orange-400 border border-white/10 hover:border-orange-400/40 font-black text-[11px] transition-all">
+                            غياب 🚫
                           </button>
                           <a href={`https://wa.me/${digitsOnly(appt.customerPhone)}?text=${encodeURIComponent(`مرحباً ${appt.customerName}، موعدك عندنا اليوم ${fmtSlot(appt.timeSlot)} 💈`)}`}
                             target="_blank" rel="noreferrer"
@@ -861,13 +941,13 @@ export default function App() {
 
                 {apptTab === "done" && (
                   <div className="space-y-3">
-                    {doneAppts.length === 0 && (
+                    {appointments.filter(a=>a.status==='done').length === 0 && (
                       <div className="bg-slate-900 rounded-[2rem] p-12 text-center border border-white/5">
                         <p className="text-white/40 font-black text-sm">لا توجد مواعيد منجزة بعد</p>
                       </div>
                     )}
-                    {doneAppts.map(appt => (
-                      <div key={appt.id} className="bg-slate-900 rounded-2xl p-4 border border-white/5 opacity-70 flex items-center justify-between gap-3">
+                    {appointments.filter(a=>a.status==='done').map(appt => (
+                      <div key={appt.id} className="bg-slate-900 rounded-2xl p-4 border border-white/5 flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
                           {FEATURES.orderNumbers && (
                             <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-base text-white bg-green-600 shrink-0">#{appt.apptNumber}</div>
@@ -879,7 +959,35 @@ export default function App() {
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <p className="text-green-400 font-black text-sm">{(appt.servicePrice||0).toLocaleString()} د.ع</p>
-                          <span className="bg-green-600/30 text-green-400 text-[9px] font-black px-2 py-0.5 rounded-full">{appt.status==='noshow'?'غياب':'منجز'}</span>
+                          <button onClick={()=>deleteAppt(appt)} className="px-2 py-1.5 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white font-black text-[10px] transition-all">🗑️</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {apptTab === "noshow" && (
+                  <div className="space-y-3">
+                    {appointments.filter(a=>a.status==='noshow').length === 0 && (
+                      <div className="bg-slate-900 rounded-[2rem] p-12 text-center border border-white/5">
+                        <p className="text-white/40 font-black text-sm">لا يوجد غياب في هذا اليوم 👍</p>
+                      </div>
+                    )}
+                    {appointments.filter(a=>a.status==='noshow').map(appt => (
+                      <div key={appt.id} className="bg-slate-900 rounded-2xl p-4 border border-orange-500/20 flex items-center justify-between gap-3 opacity-70">
+                        <div className="flex items-center gap-3">
+                          {FEATURES.orderNumbers && (
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-base text-white bg-orange-600 shrink-0">#{appt.apptNumber}</div>
+                          )}
+                          <div>
+                            <p className="text-white font-black text-sm">{appt.customerName}</p>
+                            <p className="text-white/40 text-[10px] font-bold">{appt.serviceName} — {fmtSlot(appt.timeSlot)}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="bg-orange-500/20 text-orange-400 text-[9px] font-black px-2 py-0.5 rounded-full">غياب</span>
+                          <button onClick={()=>updateApptStatus(appt,'upcoming')} className="px-2 py-1.5 rounded-xl bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 font-black text-[9px] transition-all">↩️ استعادة</button>
+                          <button onClick={()=>deleteAppt(appt)} className="px-2 py-1.5 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white font-black text-[10px] transition-all">🗑️</button>
                         </div>
                       </div>
                     ))}
