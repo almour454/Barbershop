@@ -352,7 +352,31 @@ export default function App() {
             const a = doc.data();
             if (a.status === 'upcoming') {
               setNewApptNotif({ name: a.customerName, date: dateStr, time: a.timeSlot, service: a.serviceName });
-              setTimeout(() => setNewApptNotif(null), 6000);
+              setTimeout(() => setNewApptNotif(null), 7000);
+              // Rich notification ring — ascending ding melody
+              try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const notes = [
+                  { freq: 523.25, t: 0,    dur: 0.18 }, // C5
+                  { freq: 659.25, t: 0.18, dur: 0.18 }, // E5
+                  { freq: 783.99, t: 0.36, dur: 0.18 }, // G5
+                  { freq: 1046.5, t: 0.54, dur: 0.35 }, // C6 (hold)
+                  { freq: 783.99, t: 0.65, dur: 0.12 }, // G5
+                  { freq: 1046.5, t: 0.78, dur: 0.5  }, // C6 (final)
+                ];
+                notes.forEach(({ freq, t, dur }) => {
+                  const osc = ctx.createOscillator();
+                  const gain = ctx.createGain();
+                  const now = ctx.currentTime;
+                  osc.type = 'sine';
+                  osc.frequency.value = freq;
+                  gain.gain.setValueAtTime(0, now + t);
+                  gain.gain.linearRampToValueAtTime(0.45, now + t + 0.02);
+                  gain.gain.exponentialRampToValueAtTime(0.001, now + t + dur + 0.25);
+                  osc.connect(gain); gain.connect(ctx.destination);
+                  osc.start(now + t); osc.stop(now + t + dur + 0.3);
+                });
+              } catch {}
             }
           }
         });
@@ -685,15 +709,20 @@ export default function App() {
 
             {/* 🔔 NEW APPOINTMENT NOTIFICATION TOAST */}
             {newApptNotif && (
-              <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] animate-slide-up" style={{minWidth:'300px',maxWidth:'90vw'}}>
-                <div className="bg-green-900 border-2 border-green-400 rounded-2xl p-4 shadow-2xl flex items-start gap-3">
-                  <span className="text-2xl shrink-0">🔔</span>
-                  <div>
-                    <p className="text-green-300 font-black text-sm">موعد جديد!</p>
-                    <p className="text-white font-bold text-[13px]">{newApptNotif.name} — {newApptNotif.service}</p>
-                    <p className="text-green-300/80 text-[11px] font-bold">{newApptNotif.date} · {fmtSlot(newApptNotif.time)}</p>
+              <div className="fixed inset-x-0 top-4 z-[9999] flex justify-center px-4 animate-slide-up pointer-events-none">
+                <div className="pointer-events-auto w-full max-w-sm bg-green-900 border-2 border-green-400 rounded-3xl p-5 shadow-2xl" dir="rtl"
+                  style={{boxShadow:'0 8px 40px rgba(34,197,94,0.35)'}}>
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl shrink-0 animate-pulse">🔔</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-green-300 font-black text-xs uppercase tracking-widest mb-0.5">موعد جديد!</p>
+                      <p className="text-white font-black text-base leading-tight truncate">{newApptNotif.name}</p>
+                      <p className="text-green-200 text-[12px] font-bold">{newApptNotif.service} · {fmtSlot(newApptNotif.time)}</p>
+                      <p className="text-green-400/70 text-[11px] font-bold">{newApptNotif.date}</p>
+                    </div>
+                    <button onClick={()=>setNewApptNotif(null)}
+                      className="shrink-0 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/60 hover:text-white transition-all text-sm">✕</button>
                   </div>
-                  <button onClick={()=>setNewApptNotif(null)} className="text-white/40 hover:text-white ml-auto shrink-0 text-lg leading-none">✕</button>
                 </div>
               </div>
             )}
@@ -800,10 +829,6 @@ export default function App() {
                   <button onClick={()=>setApptTab("done")}
                     className={`flex-1 py-3 rounded-2xl text-[11px] font-black uppercase tracking-wide transition-all ${apptTab==='done'?'bg-green-600 text-white shadow-lg':'bg-slate-800 text-slate-400'}`}>
                     منجزة ✓ ({appointments.filter(a=>a.status==='done').length})
-                  </button>
-                  <button onClick={()=>setApptTab("noshow")}
-                    className={`flex-1 py-3 rounded-2xl text-[11px] font-black uppercase tracking-wide transition-all ${apptTab==='noshow'?'bg-orange-600 text-white shadow-lg':'bg-slate-800 text-slate-400'}`}>
-                    غياب 🚫 ({appointments.filter(a=>a.status==='noshow').length})
                   </button>
                 </div>
 
@@ -920,10 +945,6 @@ export default function App() {
                             style={{backgroundColor:settings.primaryColor}}>
                             ✅ منجز
                           </button>
-                          <button onClick={()=>{ if(window.confirm(`تأكيد غياب ${appt.customerName}؟`)) updateApptStatus(appt,'noshow'); }}
-                            className="px-4 py-3 rounded-2xl bg-slate-700/50 text-white/60 hover:bg-orange-500/20 hover:text-orange-400 border border-white/10 hover:border-orange-400/40 font-black text-[11px] transition-all">
-                            غياب 🚫
-                          </button>
                           <a href={`https://wa.me/${digitsOnly(appt.customerPhone)}?text=${encodeURIComponent(`مرحباً ${appt.customerName}، موعدك عندنا اليوم ${fmtSlot(appt.timeSlot)} 💈`)}`}
                             target="_blank" rel="noreferrer"
                             className="px-4 py-3 rounded-2xl bg-[#25D366]/20 text-[#25D366] font-black text-[11px] flex items-center justify-center hover:bg-[#25D366]/30 transition-all shrink-0">
@@ -959,34 +980,6 @@ export default function App() {
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <p className="text-green-400 font-black text-sm">{(appt.servicePrice||0).toLocaleString()} د.ع</p>
-                          <button onClick={()=>deleteAppt(appt)} className="px-2 py-1.5 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white font-black text-[10px] transition-all">🗑️</button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {apptTab === "noshow" && (
-                  <div className="space-y-3">
-                    {appointments.filter(a=>a.status==='noshow').length === 0 && (
-                      <div className="bg-slate-900 rounded-[2rem] p-12 text-center border border-white/5">
-                        <p className="text-white/40 font-black text-sm">لا يوجد غياب في هذا اليوم 👍</p>
-                      </div>
-                    )}
-                    {appointments.filter(a=>a.status==='noshow').map(appt => (
-                      <div key={appt.id} className="bg-slate-900 rounded-2xl p-4 border border-orange-500/20 flex items-center justify-between gap-3 opacity-70">
-                        <div className="flex items-center gap-3">
-                          {FEATURES.orderNumbers && (
-                            <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-base text-white bg-orange-600 shrink-0">#{appt.apptNumber}</div>
-                          )}
-                          <div>
-                            <p className="text-white font-black text-sm">{appt.customerName}</p>
-                            <p className="text-white/40 text-[10px] font-bold">{appt.serviceName} — {fmtSlot(appt.timeSlot)}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className="bg-orange-500/20 text-orange-400 text-[9px] font-black px-2 py-0.5 rounded-full">غياب</span>
-                          <button onClick={()=>updateApptStatus(appt,'upcoming')} className="px-2 py-1.5 rounded-xl bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 font-black text-[9px] transition-all">↩️ استعادة</button>
                           <button onClick={()=>deleteAppt(appt)} className="px-2 py-1.5 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white font-black text-[10px] transition-all">🗑️</button>
                         </div>
                       </div>
