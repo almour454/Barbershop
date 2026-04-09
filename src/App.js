@@ -183,6 +183,7 @@ export default function App() {
   const [authError, setAuthError] = useState("");
   const [dataError, setDataError] = useState(null);
   const [adminTab, setAdminTab] = useState(FEATURES.dashboard ? "appointments" : "settings");
+  const [dashboardDate, setDashboardDate] = useState(getDateStr()); // owner can browse any date
   const [appointments, setAppointments] = useState([]);
   const [historyDate, setHistoryDate] = useState("");
   const [historyAppts, setHistoryAppts] = useState([]);
@@ -275,14 +276,14 @@ export default function App() {
   // Plays a sound when a new appointment arrives.
   useEffect(() => {
     if (!isUnlocked) { setAppointments([]); return; }
-    const q = query(getApptCollection(getDateStr()), orderBy("createdAt", "desc"));
+    const q = query(getApptCollection(dashboardDate), orderBy("createdAt", "desc"));
     const unsub = onSnapshot(q,
       (snap) => {
         const incoming = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         setAppointments(prev => {
           const prevIds = new Set(prev.map(a => a.id));
           const isNew = incoming.some(a => !prevIds.has(a.id) && a.status === 'upcoming');
-          if (isNew && prev.length > 0 && FEATURES.soundAlert) {
+          if (isNew && prev.length > 0 && FEATURES.soundAlert && dashboardDate === getDateStr()) {
             try {
               const ctx = new (window.AudioContext || window.webkitAudioContext)();
               [0, 0.2].forEach(t => {
@@ -304,7 +305,7 @@ export default function App() {
       }
     );
     return () => unsub();
-  }, [isUnlocked]);
+  }, [isUnlocked, dashboardDate]);
 
   // ── LOAD BOOKED SLOTS WHEN DATE IS SELECTED ───────────────────────
   // Teaching: When customer picks a date, we fetch that day's appointments
@@ -639,7 +640,8 @@ export default function App() {
               <p className="text-yellow-200">user isAnonymous: <span className="text-white">{String(user?.isAnonymous)}</span></p>
               <p className="text-yellow-200">isUnlocked: <span className="text-white">{String(isUnlocked)}</span></p>
               <p className="text-yellow-200">today: <span className="text-white">{getDateStr()}</span></p>
-              <p className="text-yellow-200">appt path: <span className="text-white">artifacts/{appId}/private/data/appointments/{getDateStr()}/items</span></p>
+              <p className="text-yellow-200">dashboard showing: <span className="text-white">{dashboardDate}</span></p>
+              <p className="text-yellow-200">appt path: <span className="text-white">artifacts/{appId}/private/data/appointments/{dashboardDate}/items</span></p>
               <p className="text-yellow-200">appointments loaded: <span className="text-white">{appointments.length}</span></p>
               {dataError && <p className="text-red-400 font-black">ERROR: {dataError}</p>}
             </div>
@@ -678,12 +680,29 @@ export default function App() {
             {FEATURES.dashboard && adminTab === "appointments" && (
               <div className="space-y-4">
 
+                {/* Date picker row */}
+                <div className="bg-slate-900 rounded-2xl p-4 border border-white/5 flex items-center gap-3">
+                  <span className="text-white/50 text-[11px] font-black uppercase tracking-wide shrink-0">📅 التاريخ</span>
+                  <input
+                    type="date"
+                    value={dashboardDate}
+                    onChange={e => setDashboardDate(e.target.value)}
+                    className="flex-1 bg-black/40 border border-white/10 p-2 rounded-xl text-white text-sm font-bold outline-none focus:border-amber-500"
+                  />
+                  <button
+                    onClick={() => setDashboardDate(getDateStr())}
+                    className="shrink-0 px-3 py-2 rounded-xl text-[11px] font-black transition-all bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30"
+                  >
+                    اليوم
+                  </button>
+                </div>
+
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { label: "مواعيد اليوم",  value: appointments.length,     color: "text-white" },
-                    { label: "قادمة",          value: upcomingAppts.length,    color: "text-yellow-400" },
-                    { label: "إيرادات اليوم",  value: todayRevenue.toLocaleString() + " د.ع", color: "text-green-400" },
+                    { label: dashboardDate === getDateStr() ? "مواعيد اليوم" : "مواعيد " + dashboardDate, value: appointments.length, color: "text-white" },
+                    { label: "قادمة",         value: upcomingAppts.length,    color: "text-yellow-400" },
+                    { label: "الإيرادات",     value: todayRevenue.toLocaleString() + " د.ع", color: "text-green-400" },
                   ].map(s => (
                     <div key={s.label} className="bg-slate-900 rounded-2xl p-4 border border-white/5 text-center">
                       <p className={`font-black text-base leading-tight ${s.color}`}>{s.value}</p>
