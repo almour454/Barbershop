@@ -141,7 +141,6 @@ export default function App() {
     shopName:        "MY BARBER SHOP",
     shopNameAr:      "صالون الحلاقة",
     primaryColor:    "#D4AF37",
-    bgColor:         "#ffffff",
     whatsapp:        "964780000000",
     workingHoursStr: "9:00 AM - 10:00 PM",
     locationDesc:    "كربلاء",
@@ -150,14 +149,12 @@ export default function App() {
     tiktokUrl:       "",
     contactPhone1:   "",
     contactPhone2:   "",
-    slotDuration:    30,       // minutes between slots
-    bookingDaysAhead:14,       // how many days ahead customers can book
-    offDays:         ["Friday"],// days shop is closed
+    contactPhone3:   "",
+    slotDuration:    30,
+    bookingDaysAhead:14,
+    offDays:         ["Friday"],
     bookingNote:     "يرجى الحضور قبل موعدك بـ 5 دقائق.",
     logoUrl:         "",
-    dayCloseHour:    23,
-    printCopies:     1,
-    autoGreyHours:   3,
   });
   const [settingsLoaded, setSettingsLoaded] = useState(false);
 
@@ -191,13 +188,9 @@ export default function App() {
   const [historyDate, setHistoryDate] = useState("");
   const [historyAppts, setHistoryAppts] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
-  const [confirmedApptDay, setConfirmedApptDay] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [apptTab, setApptTab] = useState("upcoming"); // "upcoming" | "done" | "noshow"
-  const [autoPrintEnabled, setAutoPrintEnabled] = useState(true);
-  const [showMidnightWarning, setShowMidnightWarning] = useState(false);
   const [resetUnlocked, setResetUnlocked] = useState(false);
-  const [historySearchNum, setHistorySearchNum] = useState("");
 
   // ── OWNER SERVICES MANAGEMENT ────────────────────────────────────
   const [newService, setNewService] = useState({ name: "", price: "", duration: "30", desc: "", image: "" });
@@ -965,7 +958,7 @@ export default function App() {
                     {upcomingAppts.length === 0 && (
                       <div className="bg-slate-900 rounded-[2rem] p-14 text-center border border-white/5">
                         <div className="text-5xl mb-4">📭</div>
-                        <p className="text-white/40 font-black text-sm">لا توجد مواعيد قادمة اليوم</p>
+                        <p className="text-white/40 font-black text-sm">لا توجد مواعيد في هذا اليوم</p>
                       </div>
                     )}
                     {upcomingAppts.map(appt => (
@@ -996,9 +989,8 @@ export default function App() {
                             )}
                           </div>
                         </div>
-                        <div className="bg-black/30 rounded-2xl px-4 py-3 mb-4 flex justify-between items-center">
+                        <div className="bg-black/30 rounded-2xl px-4 py-3 mb-4 flex items-center">
                           <span className="text-white/60 text-[11px] font-bold">✂️ {appt.serviceName}</span>
-                          <span className="text-white/40 text-[10px] font-bold">{appt.duration} دقيقة</span>
                         </div>
                         <div className="flex gap-2">
                           <button onClick={()=>updateApptStatus(appt,'done')}
@@ -1408,7 +1400,7 @@ export default function App() {
                     </div>
                     <div className="text-right shrink-0">
                       <p className={`font-black text-xl ${selectedService?.id===svc.id?'text-black':''}`} style={selectedService?.id===svc.id?{}:{color:'var(--gold)'}}>{(svc.price||0).toLocaleString()}</p>
-                      <p className={`text-[10px] font-bold ${selectedService?.id===svc.id?'text-black/60':''}`} style={selectedService?.id===svc.id?{}:{color:'var(--cream-muted)'}}>د.ع · {svc.duration} د</p>
+                      <p className={`text-[10px] font-bold ${selectedService?.id===svc.id?'text-black/60':''}`} style={selectedService?.id===svc.id?{}:{color:'var(--cream-muted)'}}>د.ع</p>
                     </div>
                   </button>
                 ))}
