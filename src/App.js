@@ -174,6 +174,7 @@ export default function App() {
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
   const [bookingError, setBookingError] = useState(null);
   const [confirmedApptNum, setConfirmedApptNum] = useState(null);
+  const [confirmedApptData, setConfirmedApptData] = useState(null); // full details for WhatsApp
 
   // ── OWNER DASHBOARD ──────────────────────────────────────────────
   // Teaching: Same auth structure as restaurant — reused completely
@@ -523,6 +524,15 @@ export default function App() {
         createdAt:    new Date().toISOString(),
       });
       setConfirmedApptNum(apptNumber);
+      setConfirmedApptData({
+        apptNumber,
+        customerName,
+        customerPhone,
+        serviceName:  selectedService.name,
+        servicePrice: selectedService.price,
+        timeSlot:     selectedSlot,
+        dateStr:      selectedDate,
+      });
       setBookingStep(1);
       setSelectedService(null);
       setSelectedDate('');
@@ -996,15 +1006,31 @@ export default function App() {
                             style={{backgroundColor:settings.primaryColor}}>
                             ✅ منجز
                           </button>
-                          <a href={`https://wa.me/${digitsOnly(appt.customerPhone)}?text=${encodeURIComponent(`مرحباً ${appt.customerName}، موعدك عندنا اليوم ${fmtSlot(appt.timeSlot)} 💈`)}`}
-                            target="_blank" rel="noreferrer"
-                            className="px-4 py-3 rounded-2xl bg-[#25D366]/20 text-[#25D366] font-black text-[11px] flex items-center justify-center hover:bg-[#25D366]/30 transition-all shrink-0">
-                            💬
-                          </a>
                           <button onClick={()=>deleteAppt(appt)}
                             className="px-4 py-3 rounded-2xl bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white font-black text-[10px] transition-all">
                             🗑️
                           </button>
+                        </div>
+                        {/* WhatsApp quick messages */}
+                        <div className="grid grid-cols-3 gap-2 mt-2">
+                          <a href={`https://wa.me/${digitsOnly(appt.customerPhone)}?text=${encodeURIComponent(
+                            `مرحباً ${appt.customerName}! ✅\nتم تأكيد موعدك\n✂️ ${appt.serviceName}\n📅 ${appt.dateStr}\n🕐 ${fmtSlot(appt.timeSlot)}\nرقم موعدك: #${appt.apptNumber}\nنراك قريباً 💈`
+                          )}`} target="_blank" rel="noreferrer"
+                            className="py-2.5 rounded-2xl bg-[#25D366]/15 text-[#25D366] font-black text-[10px] flex flex-col items-center gap-0.5 hover:bg-[#25D366]/25 transition-all text-center leading-tight">
+                            <span>✅</span><span>تأكيد</span>
+                          </a>
+                          <a href={`https://wa.me/${digitsOnly(appt.customerPhone)}?text=${encodeURIComponent(
+                            `مرحباً ${appt.customerName} 🙏\nنعتذر، نحتاج تأجيل موعدك الساعة ${fmtSlot(appt.timeSlot)}\nهل يناسبك وقت آخر؟`
+                          )}`} target="_blank" rel="noreferrer"
+                            className="py-2.5 rounded-2xl bg-orange-500/15 text-orange-400 font-black text-[10px] flex flex-col items-center gap-0.5 hover:bg-orange-500/25 transition-all text-center leading-tight">
+                            <span>⏰</span><span>تأجيل</span>
+                          </a>
+                          <a href={`https://wa.me/${digitsOnly(appt.customerPhone)}?text=${encodeURIComponent(
+                            `مرحباً ${appt.customerName}! 💈\nتذكير: موعدك بعد قليل الساعة ${fmtSlot(appt.timeSlot)}\nنراك قريباً ✂️`
+                          )}`} target="_blank" rel="noreferrer"
+                            className="py-2.5 rounded-2xl bg-blue-500/15 text-blue-400 font-black text-[10px] flex flex-col items-center gap-0.5 hover:bg-blue-500/25 transition-all text-center leading-tight">
+                            <span>🔔</span><span>تذكير</span>
+                          </a>
                         </div>
                       </div>
                     ))}
@@ -1508,16 +1534,54 @@ export default function App() {
           </div>
 
           {/* CONFIRMATION POPUP — luxury */}
-          {confirmedApptNum && (
+          {confirmedApptNum && confirmedApptData && (
             <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/90 backdrop-blur-md p-6">
-              <div className="barber-popup rounded-[3rem] p-10 text-center max-w-xs w-full animate-slide-up" dir="rtl">
-                <div className="text-6xl mb-4">💈</div>
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-3" style={{color:'var(--cream-muted)'}}>تم تأكيد موعدك</p>
-                <div className="barber-appt-num text-8xl font-black tracking-tighter leading-none mb-1">#{confirmedApptNum}</div>
-                <p className="text-xs font-bold mt-2 mb-8 tracking-widest" style={{color:'var(--cream-muted)'}}>احتفظ برقم موعدك</p>
-                <div className="barber-divider-h w-full h-px mb-6 opacity-20" />
-                <button onClick={()=>setConfirmedApptNum(null)}
-                  className="w-full py-4 barber-btn-primary font-black rounded-2xl text-sm active:scale-95 transition-all">
+              <div className="barber-popup rounded-[3rem] p-8 text-center max-w-xs w-full animate-slide-up" dir="rtl">
+                <div className="text-5xl mb-3">💈</div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-2" style={{color:'var(--cream-muted)'}}>تم تأكيد موعدك</p>
+                <div className="barber-appt-num text-7xl font-black tracking-tighter leading-none mb-4">#{confirmedApptNum}</div>
+
+                {/* Booking summary */}
+                <div className="rounded-2xl p-4 mb-5 text-right space-y-2" style={{background:'rgba(245,237,214,0.06)', border:'1px solid rgba(212,175,55,0.2)'}}>
+                  <div className="flex justify-between text-xs">
+                    <span style={{color:'var(--gold)'}} className="font-black">{confirmedApptData.serviceName}</span>
+                    <span style={{color:'var(--cream-muted)'}}>الخدمة</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span style={{color:'var(--cream)'}} className="font-bold">{confirmedApptData.dateStr}</span>
+                    <span style={{color:'var(--cream-muted)'}}>التاريخ</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span style={{color:'var(--cream)'}} className="font-bold">{fmtSlot(confirmedApptData.timeSlot)}</span>
+                    <span style={{color:'var(--cream-muted)'}}>الوقت</span>
+                  </div>
+                  <div className="flex justify-between text-xs" style={{borderTop:'1px solid rgba(212,175,55,0.15)', paddingTop:'8px', marginTop:'4px'}}>
+                    <span style={{color:'var(--gold)'}} className="font-black text-sm">{(confirmedApptData.servicePrice||0).toLocaleString()} د.ع</span>
+                    <span style={{color:'var(--cream-muted)'}}>السعر</span>
+                  </div>
+                </div>
+
+                {/* Send to WhatsApp button */}
+                {digitsOnly(confirmedApptData.customerPhone).length >= 5 && (
+                  <a
+                    href={`https://wa.me/${digitsOnly(confirmedApptData.customerPhone)}?text=${encodeURIComponent(
+                      `مرحباً ${confirmedApptData.customerName}! 💈\nتم تأكيد موعدك بنجاح ✅\n\n` +
+                      `✂️ الخدمة: ${confirmedApptData.serviceName}\n` +
+                      `📅 التاريخ: ${confirmedApptData.dateStr}\n` +
+                      `🕐 الوقت: ${fmtSlot(confirmedApptData.timeSlot)}\n` +
+                      `💰 السعر: ${(confirmedApptData.servicePrice||0).toLocaleString()} د.ع\n` +
+                      `🔢 رقم موعدك: #${confirmedApptData.apptNumber}\n\n` +
+                      `نراك قريباً في ${settings.shopName} 🙌`
+                    )}`}
+                    target="_blank" rel="noreferrer"
+                    className="w-full py-3.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 mb-3 transition-all active:scale-95"
+                    style={{background:'#25D366', color:'#fff', boxShadow:'0 4px 20px rgba(37,211,102,0.4)'}}>
+                    📲 أرسل تأكيد على واتساب
+                  </a>
+                )}
+
+                <button onClick={()=>{ setConfirmedApptNum(null); setConfirmedApptData(null); }}
+                  className="w-full py-3.5 barber-btn-primary font-black rounded-2xl text-sm active:scale-95 transition-all">
                   حسناً 👍
                 </button>
               </div>
