@@ -155,6 +155,7 @@ export default function App() {
     offDays:         ["Friday"],
     bookingNote:     "يرجى الحضور قبل موعدك بـ 5 دقائق.",
     logoUrl:         "",
+    shopBusy:        false,
   });
   const [settingsLoaded, setSettingsLoaded] = useState(false);
 
@@ -1180,29 +1181,19 @@ export default function App() {
                         })}
                       </div>
                     </div>
-                    <div className="bg-black/40 border border-white/5 p-4 rounded-xl">
-                      <p className="text-white text-[10px] font-bold mb-2">مدة كل موعد (دقيقة)</p>
-                      <div className="flex gap-2 flex-wrap">
-                        {[15,20,30,45,60].map(n=>(
-                          <button key={n} type="button" onClick={()=>updateGlobalSettings("slotDuration",n)}
-                            className={`px-4 py-2 rounded-xl text-[11px] font-black transition-all ${Number(settings.slotDuration)===n?'text-white':'bg-black/40 text-white/40'}`}
-                            style={Number(settings.slotDuration)===n?{backgroundColor:settings.primaryColor}:{}}>
-                            {n} د
-                          </button>
-                        ))}
+                    {/* Busy toggle */}
+                    <div className={`md:col-span-2 flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${settings.shopBusy ? 'bg-red-500/15 border-red-500/50' : 'bg-black/40 border-white/5'}`}>
+                      <div className="flex-1">
+                        <span className={`text-sm font-black block mb-0.5 ${settings.shopBusy ? 'text-red-400' : 'text-white'}`}>
+                          {settings.shopBusy ? '🔴 الصالون مشغول الآن' : '🟢 الصالون متاح للحجز'}
+                        </span>
+                        <span className="text-white/30 text-[10px]">عند التفعيل، يُوقف الحجز مؤقتاً ويظهر رسالة للزبائن</span>
                       </div>
-                    </div>
-                    <div className="bg-black/40 border border-white/5 p-4 rounded-xl">
-                      <p className="text-white text-[10px] font-bold mb-2">حجز مسبق (أيام)</p>
-                      <div className="flex gap-2 flex-wrap">
-                        {[7,14,21,30].map(n=>(
-                          <button key={n} type="button" onClick={()=>updateGlobalSettings("bookingDaysAhead",n)}
-                            className={`px-4 py-2 rounded-xl text-[11px] font-black transition-all ${Number(settings.bookingDaysAhead)===n?'text-white':'bg-black/40 text-white/40'}`}
-                            style={Number(settings.bookingDaysAhead)===n?{backgroundColor:settings.primaryColor}:{}}>
-                            {n} يوم
-                          </button>
-                        ))}
-                      </div>
+                      <button
+                        onClick={()=>updateGlobalSettings("shopBusy", !settings.shopBusy)}
+                        className={`relative w-14 h-7 rounded-full transition-all shrink-0 ${settings.shopBusy ? 'bg-red-500' : 'bg-white/10'}`}>
+                        <span className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow transition-all ${settings.shopBusy ? 'left-7' : 'left-0.5'}`} />
+                      </button>
                     </div>
                     <div className="md:col-span-2 flex items-center gap-4 bg-black/40 p-4 rounded-xl border border-white/5">
                       <div>
@@ -1322,8 +1313,12 @@ export default function App() {
 
             <div className="flex flex-col items-center gap-3">
               <div className="flex items-center gap-3 barber-pill px-6 py-2.5 rounded-full">
-                <span className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{background:'var(--gold)'}}></span>
-                <span className="text-[11px] font-black uppercase tracking-widest" style={{color:'var(--cream)'}}>{settings.workingHoursStr}</span>
+                {settings.shopBusy
+                  ? <><span className="w-2 h-2 rounded-full shrink-0 bg-red-500 animate-pulse"></span>
+                      <span className="text-[11px] font-black uppercase tracking-widest" style={{color:'#f87171'}}>مشغول حالياً</span></>
+                  : <><span className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{background:'var(--gold)'}}></span>
+                      <span className="text-[11px] font-black uppercase tracking-widest" style={{color:'var(--cream)'}}>{settings.workingHoursStr}</span></>
+                }
               </div>
               <p className="text-[11px] font-bold uppercase tracking-wider" style={{color:'var(--cream-dim)'}}>📍 {settings.locationDesc}</p>
               <div className="flex flex-wrap items-center justify-center gap-2 mt-1">
@@ -1362,6 +1357,28 @@ export default function App() {
           {/* BOOKING WIZARD */}
           <div className="max-w-lg mx-auto px-4 space-y-5" dir="rtl">
 
+            {/* ── BUSY BANNER ── */}
+            {settings.shopBusy ? (
+              <div className="animate-fade-in text-center py-10 px-6">
+                <div className="text-6xl mb-5">✂️</div>
+                <div className="barber-card rounded-[2rem] p-8 space-y-3">
+                  <p className="font-black text-xl" style={{color:'var(--cream)'}}>نعتذر، الصالون مشغول حالياً</p>
+                  <p className="text-sm font-bold leading-relaxed" style={{color:'var(--cream-muted)'}}>
+                    نحن في خضم العمل الآن 💈<br/>
+                    يرجى المحاولة بعد ساعة أو ساعتين<br/>
+                    وسنكون سعداء بخدمتكم
+                  </p>
+                  <div className="barber-divider-h h-px w-1/2 mx-auto opacity-30 my-2" />
+                  {settings.whatsapp && (
+                    <a href={`https://wa.me/${digitsOnly(settings.whatsapp)}`} target="_blank" rel="noreferrer"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-sm transition-all"
+                      style={{background:'#25D366', color:'#fff', boxShadow:'0 4px 20px rgba(37,211,102,0.3)'}}>
+                      💬 تواصل معنا على واتساب
+                    </a>
+                  )}
+                </div>
+              </div>
+            ) : (
             {/* Step indicator — luxury version */}
             <div className="flex items-center justify-center gap-2 mb-2 px-4">
               {[{n:1,label:'الخدمة'},{n:2,label:'الموعد'},{n:3,label:'بياناتك'}].map(({n,label})=>(
@@ -1524,6 +1541,7 @@ export default function App() {
               </div>
             )}
           </div>
+          )} {/* end of !shopBusy */}
 
           {/* CONFIRMATION POPUP — luxury */}
           {confirmedApptNum && confirmedApptData && (
