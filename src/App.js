@@ -470,10 +470,16 @@ export default function App() {
       d.setDate(d.getDate() + i);
       const dayName = dayNames[d.getDay()];
       if (offDays.includes(dayName)) continue;
-      // For today: only include if there are future slots remaining (with buffer)
+      // For today: only include if at least one future slot still exists
       if (i === 0) {
+        const startMin = parseTime(parts[0] || "9:00 AM");
         const bufferMin = now.getHours() * 60 + now.getMinutes() + duration;
-        if (bufferMin >= endMin) continue; // no slots left today
+        // Check if any slot boundary falls between bufferMin and endMin
+        let hasSlot = false;
+        for (let s = startMin; s + duration <= endMin; s += duration) {
+          if (s >= bufferMin) { hasSlot = true; break; }
+        }
+        if (!hasSlot) continue;
       }
       days.push({
         str: d.toLocaleDateString('en-CA'),
