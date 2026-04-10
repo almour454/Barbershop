@@ -1356,8 +1356,6 @@ export default function App() {
 
           {/* BOOKING WIZARD */}
           <div className="max-w-lg mx-auto px-4 space-y-5" dir="rtl">
-
-            {/* ── BUSY BANNER ── */}
             {settings.shopBusy ? (
               <div className="animate-fade-in text-center py-10 px-6">
                 <div className="text-6xl mb-5">✂️</div>
@@ -1379,20 +1377,22 @@ export default function App() {
                 </div>
               </div>
             ) : (
-            {/* Step indicator — luxury version */}
-            <div className="flex items-center justify-center gap-2 mb-2 px-4">
-              {[{n:1,label:'الخدمة'},{n:2,label:'الموعد'},{n:3,label:'بياناتك'}].map(({n,label})=>(
-                <React.Fragment key={n}>
-                  <div className="flex flex-col items-center gap-1.5">
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-sm transition-all ${bookingStep>=n?'barber-step-active':'barber-step-inactive'}`}>
-                      {bookingStep>n?'✓':n}
-                    </div>
-                    <span className="text-[9px] font-black uppercase tracking-widest" style={{color: bookingStep>=n ? 'var(--gold)' : 'rgba(245,237,214,0.2)'}}>{label}</span>
-                  </div>
-                  {n<3 && <div className={`flex-1 h-px mb-5 transition-all ${bookingStep>n?'barber-divider-h':'barber-divider-inactive'}`} />}
-                </React.Fragment>
-              ))}
-            </div>
+              <div className="space-y-5">
+
+                {/* Step indicator */}
+                <div className="flex items-center justify-center gap-2 mb-2 px-4">
+                  {[{n:1,label:'الخدمة'},{n:2,label:'الموعد'},{n:3,label:'بياناتك'}].map(({n,label})=>(
+                    <React.Fragment key={n}>
+                      <div className="flex flex-col items-center gap-1.5">
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-sm transition-all ${bookingStep>=n?'barber-step-active':'barber-step-inactive'}`}>
+                          {bookingStep>n?'✓':n}
+                        </div>
+                        <span className="text-[9px] font-black uppercase tracking-widest" style={{color: bookingStep>=n ? 'var(--gold)' : 'rgba(245,237,214,0.2)'}}>{label}</span>
+                      </div>
+                      {n<3 && <div className={`flex-1 h-px mb-5 transition-all ${bookingStep>n?'barber-divider-h':'barber-divider-inactive'}`} />}
+                    </React.Fragment>
+                  ))}
+                </div>
 
             {/* STEP 1 — Pick service */}
             {bookingStep === 1 && (
@@ -1540,8 +1540,10 @@ export default function App() {
                 </button>
               </div>
             )}
+
+              </div>
+            )} {/* end ternary shopBusy */}
           </div>
-          )} {/* end of !shopBusy */}
 
           {/* CONFIRMATION POPUP — luxury */}
           {confirmedApptNum && confirmedApptData && (
