@@ -430,9 +430,10 @@ export default function App() {
     const slots = [];
     const now = new Date();
     const isToday = dateStr === todayStr;
-    const nowMin = isToday ? now.getHours() * 60 + now.getMinutes() : 0;
+    // For today: skip slots that have already started or are within the next slot duration (buffer)
+    const bufferMin = isToday ? now.getHours() * 60 + now.getMinutes() + duration : 0;
     for (let m = startMin; m + duration <= endMin; m += duration) {
-      if (isToday && m <= nowMin) continue; // skip past slots
+      if (isToday && m < bufferMin) continue; // skip past + buffer slots
       const h = Math.floor(m / 60);
       const min = m % 60;
       const label = `${h % 12 || 12}:${min.toString().padStart(2,'0')} ${h < 12 ? 'ص' : 'م'}`;
@@ -451,20 +452,37 @@ export default function App() {
     const daysAhead = Number(settings.bookingDaysAhead) || 14;
     const offDays = settings.offDays || [];
     const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const duration = Number(settings.slotDuration) || 30;
+    const now = new Date();
+    const hoursStr = settings.workingHoursStr || "9:00 AM - 10:00 PM";
+    const parts = hoursStr.split(' - ');
+    const parseTime = (str) => {
+      const [time, period] = (str||'').trim().split(' ');
+      let [h, m] = (time||'0:0').split(':').map(Number);
+      if (period === 'PM' && h !== 12) h += 12;
+      if (period === 'AM' && h === 12) h = 0;
+      return h * 60 + (m || 0);
+    };
+    const endMin = parseTime(parts[1] || "22:00");
+
     for (let i = 0; i <= daysAhead; i++) {
       const d = new Date();
       d.setDate(d.getDate() + i);
       const dayName = dayNames[d.getDay()];
-      if (!offDays.includes(dayName)) {
-        days.push({
-          str: d.toLocaleDateString('en-CA'),
-          label: i === 0 ? 'اليوم' : i === 1 ? 'غداً' :
-            d.toLocaleDateString('ar-IQ', { weekday: 'short', month: 'short', day: 'numeric' })
-        });
+      if (offDays.includes(dayName)) continue;
+      // For today: only include if there are future slots remaining (with buffer)
+      if (i === 0) {
+        const bufferMin = now.getHours() * 60 + now.getMinutes() + duration;
+        if (bufferMin >= endMin) continue; // no slots left today
       }
+      days.push({
+        str: d.toLocaleDateString('en-CA'),
+        label: i === 0 ? 'اليوم' : i === 1 ? 'غداً' :
+          d.toLocaleDateString('ar-IQ', { weekday: 'short', month: 'short', day: 'numeric' })
+      });
     }
     return days;
-  }, [settings.bookingDaysAhead, settings.offDays, todayStr]);
+  }, [settings.bookingDaysAhead, settings.offDays, settings.workingHoursStr, settings.slotDuration, todayStr]);
 
   // ── BOOK APPOINTMENT ──────────────────────────────────────────────
   // Teaching: Save appointment to Firebase. Uses a transaction to get
@@ -615,32 +633,59 @@ export default function App() {
 
   // ── PRINT APPOINTMENT RECEIPT ─────────────────────────────────────
   const printApptReceipt = (appt) => {
-    const win = window.open('', '_blank', 'width=240,height=400');
+    const win = window.open('', '_blank', 'width=260,height=500');
     if (!win) return;
     const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const fmtTime = (val) => { if(!val) return ''; const [h,m]=val.split(':').map(Number); return `${h%12||12}:${m.toString().padStart(2,'0')} ${h<12?'ص':'م'}`; };
     win.document.write(`<html><head><meta charset="utf-8"/>
       <style>
-        @page{size:58mm auto;margin:2mm}
-        body{font-family:'Courier New',monospace;direction:rtl;font-size:11px;width:54mm;margin:0;padding:0}
-        h1{font-size:13px;font-weight:900;text-align:center;margin:0 0 1mm}
-        .num{font-size:30px;font-weight:900;text-align:center;margin:2mm 0}
-        .row{display:flex;justify-content:space-between;padding:1mm 0;border-bottom:1px dotted #999;font-size:10px}
-        .meta{font-size:9px;color:#444;text-align:center;margin:1mm 0}
-        hr{border:none;border-top:1px dashed #333;margin:2mm 0}
-        @media print{body{width:54mm}html{width:58mm}}
+        @page{size:58mm auto;margin:3mm}
+        *{box-sizing:border-box}
+        body{font-family:'Arial',sans-serif;direction:rtl;font-size:11px;width:52mm;margin:0 auto;padding:0;color:#111}
+        .shop{font-size:15px;font-weight:900;text-align:center;margin:0;letter-spacing:1px}
+        .shop-ar{font-size:11px;text-align:center;color:#555;margin:1mm 0 2mm}
+        .scissors{text-align:center;font-size:18px;margin:1mm 0;letter-spacing:6px}
+        .num-box{border:2px solid #111;border-radius:4px;margin:2mm auto;width:32mm;text-align:center;padding:1mm}
+        .num-label{font-size:8px;color:#555;text-transform:uppercase;letter-spacing:1px}
+        .num{font-size:28px;font-weight:900;line-height:1}
+        hr{border:none;border-top:1px dashed #aaa;margin:2mm 0}
+        .row{display:flex;justify-content:space-between;align-items:center;padding:1.2mm 0;border-bottom:1px dotted #ddd;font-size:10px}
+        .row:last-child{border-bottom:none}
+        .lbl{color:#666}
+        .val{font-weight:700;text-align:left}
+        .price-row{display:flex;justify-content:space-between;align-items:center;margin:2mm 0;padding:2mm;background:#f5f5f5;border-radius:3px}
+        .price-lbl{font-size:10px;font-weight:700}
+        .price-val{font-size:16px;font-weight:900}
+        .footer{text-align:center;margin-top:3mm;font-size:9px;color:#666;line-height:1.6}
+        .thank{font-size:11px;font-weight:900;color:#111;text-align:center;margin:2mm 0}
+        @media print{body{width:52mm}html{width:58mm}}
       </style></head><body>
-      <h1>${esc(settings.shopName)}</h1>
-      <div class="meta">${esc(settings.shopNameAr)}</div>
+      <p class="shop">${esc(settings.shopName)}</p>
+      <p class="shop-ar">${esc(settings.shopNameAr)}</p>
+      <div class="scissors">✂ ✂ ✂</div>
       <hr/>
-      <div class="num">#${appt.apptNumber || '—'}</div>
+      <div class="num-box">
+        <div class="num-label">رقم الموعد</div>
+        <div class="num">#${appt.apptNumber || '—'}</div>
+      </div>
       <hr/>
-      <div class="row"><span>الاسم</span><span>${esc(appt.customerName)}</span></div>
-      <div class="row"><span>الخدمة</span><span>${esc(appt.serviceName)}</span></div>
-      <div class="row"><span>التاريخ</span><span>${appt.dateStr}</span></div>
-      <div class="row"><span>الوقت</span><span dir="ltr">${appt.timeSlot}</span></div>
-      <div class="row"><span>السعر</span><span>${(appt.servicePrice||0).toLocaleString()} د.ع</span></div>
+      <div class="row"><span class="lbl">الاسم</span><span class="val">${esc(appt.customerName)}</span></div>
+      <div class="row"><span class="lbl">الهاتف</span><span class="val" dir="ltr">${esc(appt.customerPhone)}</span></div>
+      <div class="row"><span class="lbl">الخدمة</span><span class="val">${esc(appt.serviceName)}</span></div>
+      <div class="row"><span class="lbl">المدة</span><span class="val">${appt.duration} دقيقة</span></div>
+      <div class="row"><span class="lbl">التاريخ</span><span class="val" dir="ltr">${appt.dateStr}</span></div>
+      <div class="row"><span class="lbl">الوقت</span><span class="val">${fmtTime(appt.timeSlot)}</span></div>
       <hr/>
-      <div class="meta">أهلاً بك 💈</div>
+      <div class="price-row">
+        <span class="price-lbl">المبلغ الإجمالي</span>
+        <span class="price-val">${(appt.servicePrice||0).toLocaleString()} د.ع</span>
+      </div>
+      <hr/>
+      <p class="thank">شكراً لزيارتك! 💈</p>
+      <div class="footer">
+        ${settings.locationDesc ? `📍 ${esc(settings.locationDesc)}<br/>` : ''}
+        ${settings.workingHoursStr ? `🕐 ${esc(settings.workingHoursStr)}` : ''}
+      </div>
       <script>window.onload=()=>{window.print();window.close();}<\/script>
       </body></html>`);
     win.document.close();
