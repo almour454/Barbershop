@@ -703,8 +703,8 @@ export default function App() {
 
   // ── SPLIT APPOINTMENTS ────────────────────────────────────────────
   const upcomingAppts = appointments.filter(a => a.status === 'upcoming');
-  const doneAppts     = appointments.filter(a => a.status === 'done' || a.status === 'noshow');
-  const todayRevenue  = doneAppts.filter(a => a.status === 'done').reduce((s,a) => s + (a.servicePrice||0), 0);
+  const doneAppts     = appointments.filter(a => a.status === 'done');
+  const todayRevenue  = doneAppts.reduce((s,a) => s + (a.servicePrice||0), 0);
 
   // ── TIME FORMAT HELPER ────────────────────────────────────────────
   const fmtSlot = (val) => {
@@ -860,9 +860,9 @@ export default function App() {
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { label: dashboardDate === getDateStr() ? "مواعيد اليوم" : "مواعيد " + dashboardDate, value: appointments.length, color: "text-white" },
-                    { label: "قادمة",         value: upcomingAppts.length,    color: "text-yellow-400" },
-                    { label: "الإيرادات",     value: todayRevenue.toLocaleString() + " د.ع", color: "text-green-400" },
+                    { label: "قادمة",      value: upcomingAppts.length,                         color: "text-yellow-400" },
+                    { label: "منجزة",      value: doneAppts.length,                             color: "text-white" },
+                    { label: "الإيرادات",  value: todayRevenue.toLocaleString() + " د.ع",       color: "text-green-400" },
                   ].map(s => (
                     <div key={s.label} className="bg-slate-900 rounded-2xl p-4 border border-white/5 text-center">
                       <p className={`font-black text-base leading-tight ${s.color}`}>{s.value}</p>
@@ -883,7 +883,7 @@ export default function App() {
                   </button>
                   <button onClick={()=>setApptTab("done")}
                     className={`flex-1 py-3 rounded-2xl text-[11px] font-black uppercase tracking-wide transition-all ${apptTab==='done'?'bg-green-600 text-white shadow-lg':'bg-slate-800 text-slate-400'}`}>
-                    منجزة ✓ ({appointments.filter(a=>a.status==='done').length})
+                    منجزة ✓ ({doneAppts.length})
                   </button>
                 </div>
 
@@ -1032,12 +1032,12 @@ export default function App() {
 
                 {apptTab === "done" && (
                   <div className="space-y-3">
-                    {appointments.filter(a=>a.status==='done').length === 0 && (
+                    {doneAppts.length === 0 && (
                       <div className="bg-slate-900 rounded-[2rem] p-12 text-center border border-white/5">
                         <p className="text-white/40 font-black text-sm">لا توجد مواعيد منجزة بعد</p>
                       </div>
                     )}
-                    {appointments.filter(a=>a.status==='done').map(appt => (
+                    {doneAppts.map(appt => (
                       <div key={appt.id} className="bg-slate-900 rounded-2xl p-4 border border-white/5 flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
                           {FEATURES.orderNumbers && (
