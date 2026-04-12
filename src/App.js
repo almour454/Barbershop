@@ -563,6 +563,14 @@ export default function App() {
     } catch (e) { console.error(e); }
   };
 
+  const deleteHistoryAppt = async (appt) => {
+    if (!window.confirm(`حذف موعد #${appt.apptNumber} للزبون ${appt.customerName}؟`)) return;
+    try {
+      await deleteDoc(doc(db, 'artifacts', appId, 'private', 'data', 'appointments', appt.dateStr, 'items', appt.id));
+      setHistoryAppts(prev => prev.filter(a => a.id !== appt.id));
+    } catch (e) { console.error(e); }
+  };
+
   // ── OWNER: BLOCK / UNBLOCK A TIME SLOT ───────────────────────────
   // Teaching: Owner can tap a slot on the calendar to block it (lunch, break, etc.)
   // Stored as an array of "HH:MM" strings in a doc per date.
@@ -1137,7 +1145,10 @@ export default function App() {
                             <p className="text-white/40 text-[10px] font-bold">{appt.serviceName} — {fmtSlot(appt.timeSlot)}</p>
                           </div>
                         </div>
-                        <p className="text-white/60 font-black text-sm shrink-0">{(appt.servicePrice||0).toLocaleString()} د.ع</p>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <p className="text-white/60 font-black text-sm">{(appt.servicePrice||0).toLocaleString()} د.ع</p>
+                          <button onClick={()=>deleteHistoryAppt(appt)} className="px-2 py-1.5 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white font-black text-[10px] transition-all">🗑️</button>
+                        </div>
                       </div>
                     ))}
                   </>
